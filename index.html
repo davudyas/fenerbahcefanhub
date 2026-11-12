@@ -5156,11 +5156,12 @@ function lookInit(){EN_NS["nav:Home"]="Home";const hero=document.querySelector("
   document.body.insertAdjacentHTML("beforeend",`<nav class="bnav" id="bnav" aria-label="${esc(t("Main"))}"></nav>`);paintChrome()}
 
 /* Settings and account panels: never taller than the screen, with their own scrollbar */
-(function(){const fit=p=>{if(!p||p.hidden)return;p.style.maxHeight="";const r=p.getBoundingClientRect();p.style.maxHeight=Math.max(220,Math.floor(innerHeight-Math.max(r.top,8)-12))+"px"};
+(function(){const fit=p=>{if(!p||p.hidden)return;p.style.maxHeight="";const r=p.getBoundingClientRect();const bn=document.getElementById("bnav"),bt=bn&&getComputedStyle(bn).display!=="none"&&bn.getBoundingClientRect().height?bn.getBoundingClientRect().top:innerHeight;
+  p.style.maxHeight=Math.max(220,Math.floor(Math.min(innerHeight,bt)-Math.max(r.top,8)-12))+"px"};
   const fitAll=()=>document.querySelectorAll(".setpanel").forEach(fit);
   const mo=new MutationObserver(ms=>ms.forEach(m=>{if(m.target.classList&&m.target.classList.contains("setpanel")&&!m.target.hidden)requestAnimationFrame(()=>fit(m.target))}));
   const watch=()=>document.querySelectorAll(".setpanel").forEach(p=>{if(!p._fitW){p._fitW=1;mo.observe(p,{attributes:true,attributeFilter:["hidden"]})}});
-  setInterval(watch,1000);addEventListener("resize",fitAll);addEventListener("scroll",fitAll,{passive:true})})();
+  watch();setInterval(watch,1000);addEventListener("resize",fitAll);addEventListener("scroll",fitAll,{passive:true})})();
 
 /* ===== XI Draft, Golazo style: spin a formation, spin a season, pick one player from that squad ===== */
 Object.assign(NAT,{SWE:"Sweden",ENG:"England",BEL:"Belgium",MLI:"Mali",RUS:"Russia",CPV:"Cape Verde",GRE:"Greece",COD:"DR Congo",SVN:"Slovenia",MKD:"North Macedonia"});
