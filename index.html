@@ -1602,6 +1602,11 @@ html[dir="rtl"] .gztrack{direction:ltr}
 .smon small{font-size:10px;font-weight:500;letter-spacing:0}
 .fnrow{display:flex;gap:8px;align-items:center}
 .fnrow input{flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit}
+.acct .acform{display:grid;gap:8px;margin:8px 0 4px}
+.acct .acform input{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit}
+.acct .acform .btns{display:flex;gap:8px;flex-wrap:wrap}
+.acct .acctin{display:block;margin:2px 0;color:var(--ink);font-size:15px;font-weight:600}.acct .acctin b{font-weight:800}
+.acct #acMsg:empty{display:none}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -5619,7 +5624,14 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
   const COLS=["predictions","motm","scores","ratings","seasons","challenges","watch"];
 
   /* ---- db: collection(col).onSnapshot(cb) and doc("col/id").set(data) ---- */
-  function makeDb(me){const c=client();
+  /* what each shared collection keeps in this browser, so an account's saved data shows up on a new device */
+  const LOCAL={predictions:["p","fb-preds"],motm:["v","fb-motm"],ratings:["r","fb-ratings"],challenges:["c","fb-ch"],seasons:["b","fb-sz-rec"],watch:["w","fb-watch"]};
+  let REMOTE_SCORES={};
+  function hydrate(c,me){return c.from("docs").select("col,data").eq("id",me).then(({data,error})=>{if(error)return;let changed=false;
+    (data||[]).forEach(r=>{if(r.col==="scores"){REMOTE_SCORES=(r.data&&r.data.s)||{};return}const L=LOCAL[r.col];if(!L||typeof store==="undefined")return;const rem=(r.data&&r.data[L[0]])||{};
+      const loc=store.get(L[1],{})||{};let n=0;Object.keys(rem).forEach(k=>{if(!(k in loc)){loc[k]=rem[k];n++}});if(n){store.set(L[1],loc);changed=true}});
+    if(changed)setTimeout(()=>{try{xRefresh();if(typeof xBadgeCheck==="function")xBadgeCheck()}catch(e){}},0)}).catch(()=>{})}
+  function makeDb(me){const c=client();const hyd=hydrate(c,me);
     const docSnap=(id,d)=>({id,exists:true,data:()=>d});
     return {
       collection(col){return {onSnapshot(cb,err){if(!COLS.includes(col)){err&&err(new Error("unknown collection"));return ()=>{}}
@@ -5629,7 +5641,8 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
           if(p.eventType==="DELETE"){const id=p.old&&p.old.id;if(id){delete m[id];emit()}return}const r=p.new;if(r&&r.id){m[r.id]=r.data;emit()}}).subscribe();
         return ()=>{alive=false;c.removeChannel(ch)}}}},
       doc(path){const [col,id]=path.split("/");return {
-        async set(data){if(!COLS.includes(col)||id!==me)throw Object.assign(new Error("not allowed"),{code:"forbidden"});
+        async set(data){if(!COLS.includes(col)||id!==me)throw Object.assign(new Error("not allowed"),{code:"forbidden"});await hyd;
+          if(col==="scores"&&data&&data.s){const s={...data.s};Object.entries(REMOTE_SCORES).forEach(([k,v])=>{if(typeof v==="number"&&!(s[k]>=v))s[k]=v});data={...data,s};REMOTE_SCORES=s}
           const {error}=await c.from("docs").upsert({col,id,data,updated_at:new Date().toISOString()});if(error)throw error},
         async get(){const {data}=await c.from("docs").select("data").eq("col",col).eq("id",id).maybeSingle();return {id,exists:!!data,data:()=>data&&data.data}}}}}}
 
@@ -5675,8 +5688,29 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
   const downloads={async save({filename,data}){const blob=data instanceof Blob?data:new Blob([data],{type:/\.csv$/i.test(filename)?"text/csv;charset=utf-8":"application/octet-stream"});
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename||"download";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return {saved:true}}};
 
+  /* ---- accounts: username + password; the guest account becomes the permanent one, so nothing is lost ---- */
+  const U_DOM="fans.fenerbahcefanhub.app";
+  const uMail=u=>u+"@"+U_DOM;
+  const uOk=u=>/^[a-z0-9][a-z0-9._-]{1,18}[a-z0-9]$/.test(u);
+  const err=(code)=>Object.assign(new Error(code),{code});
+  const authErr=e=>{const m=((e&&(e.code||""))+" "+(e&&e.message||"")).toLowerCase();if(e&&e.status===429||/rate limit|too many/.test(m))return err("slow");
+    if(/already|exists|registered|taken/.test(m))return err("taken");if(/invalid login|credentials/.test(m))return err("wrong");if(/password/.test(m)&&/(short|least|weak|characters)/.test(m))return err("pw");return err("net")};
+  async function account(){const c=client();if(!c)return null;const {data}=await c.auth.getSession();const u=data&&data.session&&data.session.user;if(!u)return null;
+    const em=u.email||"";return {anon:!!u.is_anonymous||!em,username:em.endsWith("@"+U_DOM)?em.slice(0,-U_DOM.length-1):(em||null)}}
+  async function register(name,pw){const c=client();if(!c)throw err("net");const u=String(name||"").trim().toLowerCase();if(!uOk(u))throw err("name");if(String(pw||"").length<6)throw err("pw");
+    const me=await uid();if(!me)throw err("net");const a=await account();if(a&&!a.anon)throw err("already");
+    let r=await c.auth.updateUser({email:uMail(u)});if(r.error)throw authErr(r.error);
+    r=await c.auth.updateUser({password:pw});if(r.error)throw authErr(r.error);
+    try{const U=await window.claude.use("user");if(U&&!U.myName())await U.setName(String(name).trim())}catch(e){}
+    return u}
+  async function login(name,pw){const c=client();if(!c)throw err("net");const u=String(name||"").trim().toLowerCase();if(!uOk(u))throw err("wrong");
+    const r=await c.auth.signInWithPassword({email:uMail(u),password:pw});if(r.error)throw authErr(r.error);return u}
+  async function logout(){const c=client();if(!c)return;await c.auth.signOut().catch(()=>{});
+    /* the next visitor on this browser starts fresh, without this account's predictions and votes */
+    if(typeof store!=="undefined")Object.values(LOCAL).forEach(([,k])=>{try{store.set(k,{})}catch(e){}})}
+
   const cache={};
-  window.FB_SITE={on:false,client,uid};
+  window.FB_SITE={on:false,client,uid,account,register,login,logout};
   window.claude={async use(cap){
     if(cap==="downloads")return downloads;
     if(cap==="sample")return null; /* Kanarya stays off on the stand-alone site */
@@ -5694,8 +5728,25 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     const tour=pan.querySelector("#setTour");const row=document.createElement("label");row.className="setrow";
     row.innerHTML=`<span>${t("Your fan name")}</span><span class="fnrow"><input id="setName" maxlength="24" autocomplete="nickname" value="${esc(cur)}" placeholder="${esc(t("e.g. Kadıköy Kanaryası"))}"><button class="btn ghost sm" type="button" id="setNameOk">${t("Save")}</button></span><small>${t("Shown on leaderboards and in watch parties. Leave it empty to appear as “A fan”.")}</small>`;
     (tour?tour.closest(".btns"):pan.lastElementChild).before(row);
+    const acc=document.createElement("div");acc.className="setrow acct";acc.id="setAcct";row.before(acc);fillAccount();
     const save=async()=>{const b=$("setNameOk");b.disabled=true;try{const n=await XC.user.setName($("setName").value);XC.names[XC.me]=n;RT.names[XC.me]=n;xToast(n?tf("Saved. You're {n} now.",{n}):t("Saved."));xRefresh()}catch(e){xToast(t("Couldn't save your name. Try again."))}b.disabled=false};
     $("setNameOk").onclick=save;$("setName").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();save()}}};
+  const AE={name:"Usernames need 3–20 letters (a–z), numbers, dots, dashes or underscores.",pw:"Passwords need at least 6 characters.",taken:"That username is already taken. Pick another one.",
+    wrong:"Wrong username or password.",slow:"Too many attempts. Wait a few minutes and try again.",net:"Couldn't connect. Try again.",already:"You're already logged in."};
+  async function fillAccount(){const box=$("setAcct");if(!box)return;const a=await FB_SITE.account().catch(()=>null);if(!$("setAcct"))return;
+    if(a&&!a.anon){box.innerHTML=`<span>${t("Your account")}</span><b class="acctin">${tf("Logged in as {u}.",{u:`<b>${esc(a.username||"")}</b>`})}</b><small>${t("Your points, predictions and fan name are saved to your account. Log in with the same username on any device.")}</small><div class="btns"><button class="btn ghost sm" type="button" id="acOut">${t("Log out")}</button></div>`;
+      $("acOut").onclick=async()=>{$("acOut").disabled=true;await FB_SITE.logout();location.reload()};return}
+    box.innerHTML=`<span>${t("Your account")}</span><small>${t("You're playing as a guest on this device. Create an account to keep your points, predictions and fan name, and to log in on other devices.")}</small>
+      <form id="acForm" class="acform" autocomplete="on"><input id="acUser" name="username" autocomplete="username" maxlength="20" autocapitalize="none" spellcheck="false" placeholder="${esc(t("Username"))}" aria-label="${esc(t("Username"))}">
+      <input id="acPw" name="password" type="password" autocomplete="current-password" maxlength="72" placeholder="${esc(t("Password"))}" aria-label="${esc(t("Password"))}">
+      <div class="btns"><button class="btn sm" type="submit" data-ac="register">${t("Create account")}</button><button class="btn ghost sm" type="submit" data-ac="login">${t("Log in")}</button></div>
+      <p class="fine" id="acMsg" role="status" aria-live="polite"></p></form>
+      <small>${t("Usernames: 3–20 letters (a–z), numbers, dots, dashes or underscores. There is no password reset, so keep your password somewhere safe.")}</small>`;
+    let mode="login";box.querySelectorAll("[data-ac]").forEach(b=>b.onclick=()=>{mode=b.dataset.ac;$("acPw").autocomplete=mode==="register"?"new-password":"current-password"});
+    $("acForm").onsubmit=async e=>{e.preventDefault();const msg=$("acMsg"),bs=box.querySelectorAll("[data-ac]");bs.forEach(b=>b.disabled=true);msg.textContent=t(mode==="register"?"Creating your account…":"Logging in…");
+      try{if(mode==="register"){const u=await FB_SITE.register($("acUser").value,$("acPw").value);xToast(tf("Account created. You're logged in as {u}.",{u}));fillSettings()}
+        else{await FB_SITE.login($("acUser").value,$("acPw").value);location.reload()}}
+      catch(x){msg.textContent=t(AE[x&&x.code]||AE.net);bs.forEach(b=>b.disabled=false)}}}
   /* load my own name once signed in */
   const wait=setInterval(()=>{if(XC.on&&XC.user&&XC.user.profiles){clearInterval(wait);XC.user.profiles([XC.me]).then(()=>{const f=$("setName"),n=XC.user.myName();if(f&&n&&!f.value&&document.activeElement!==f)f.value=n}).catch(()=>{})}},800);setTimeout(()=>clearInterval(wait),30000)})();
 
