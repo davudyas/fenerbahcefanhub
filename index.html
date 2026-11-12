@@ -765,6 +765,23 @@ html[data-theme="clean"]{--night:#fbfbfa;--navy:#ffffff;--navy-2:#f1f2f4;--navy-
 html[data-theme="clean"] .stand tr.fbrow td{background:rgba(27,56,120,.08)}html[data-theme="clean"] .stand tr.fbrow .tm{color:#1b3878}
 html[data-theme="clean"] .hero .scene{filter:saturate(.85)}
 html[data-theme="clean"] .bar{background:rgba(255,255,255,.9)}
+/* ---- v28: more designs ---- */
+html[data-theme="bosphorus"]{--night:#04212b;--navy:#0a3442;--navy-2:#0f4757;--navy-3:#165d70;--line:rgba(150,220,235,.16);--line-2:rgba(150,220,235,.3);--yellow:#ffe500;--yellow-2:#ffc800;--yellow-soft:#fff2a6;--ink:#eef8f8;--muted:#a3cbd2;--dim:#78a6ae;--good:#5fe0a0;--bad:#ff7a6b;--present:#4fb3ff;--absent:#0f3a47;--accent:#ffe500;--on-accent:#06222b;--hl:255,255,255;--bg-rgb:4,33,43;--panel-rgb:10,52,66;--h1a:#ffffff;--h1b:#bfe3e8;--shadow:0 18px 40px -18px rgba(0,0,0,.6);color-scheme:dark}
+html[data-theme="bosphorus"] body::after{background:radial-gradient(900px 520px at 85% -10%,rgba(80,200,220,.16),transparent 60%),radial-gradient(700px 500px at -10% 20%,rgba(255,229,0,.06),transparent 60%)}
+html[data-theme="pitch"]{--night:#062014;--navy:#0c3020;--navy-2:#11402b;--navy-3:#185438;--line:rgba(200,240,210,.15);--line-2:rgba(200,240,210,.28);--yellow:#ffe500;--yellow-2:#ffc800;--yellow-soft:#fff2a6;--ink:#f3f7ef;--muted:#a9cbb2;--dim:#7da38a;--good:#7ef0a6;--bad:#ff8070;--present:#5aa8ff;--absent:#123a26;--accent:#ffe500;--on-accent:#06200f;--hl:255,255,255;--bg-rgb:6,32,20;--panel-rgb:12,48,32;--h1a:#ffffff;--h1b:#cfe9d4;--shadow:0 18px 40px -18px rgba(0,0,0,.6);color-scheme:dark}
+html[data-theme="pitch"] body::after{background:repeating-linear-gradient(90deg,rgba(255,255,255,.028) 0 80px,transparent 80px 160px)}
+html[data-theme="sunset"]{--night:#fbeee2;--navy:#fffaf4;--navy-2:#f6e3d2;--navy-3:#ebcdb4;--line:rgba(70,30,20,.12);--line-2:rgba(70,30,20,.24);--yellow:#ffb400;--yellow-2:#f39a00;--yellow-soft:#6b3d00;--ink:#2b1a14;--muted:#6e4b3c;--dim:#7b5a4b;--good:#2a7236;--bad:#c0392b;--present:#3d6fe0;--absent:#ecd7c4;--accent:#b8461b;--on-accent:#2b1a14;--hl:70,30,20;--bg-rgb:251,238,226;--panel-rgb:255,250,244;--h1a:#2b1a14;--h1b:#b8461b;--shadow:0 18px 40px -24px rgba(90,40,20,.35);color-scheme:light}
+html[data-theme="sunset"] body::after{background:radial-gradient(900px 500px at 85% -10%,rgba(255,150,40,.22),transparent 60%),radial-gradient(800px 600px at -10% 10%,rgba(200,70,30,.08),transparent 60%)}
+html[data-theme="sky"]{--night:#eaf3fb;--navy:#ffffff;--navy-2:#e1edf8;--navy-3:#c6dbef;--line:rgba(13,40,80,.1);--line-2:rgba(13,40,80,.2);--yellow:#ffd400;--yellow-2:#f2b600;--yellow-soft:#5c4a00;--ink:#0d2340;--muted:#4a6283;--dim:#5b7292;--good:#12703f;--bad:#c4372b;--present:#1660b8;--absent:#d3e2f1;--accent:#1660b8;--on-accent:#0a1a30;--hl:13,40,80;--bg-rgb:234,243,251;--panel-rgb:255,255,255;--h1a:#0d2340;--h1b:#1660b8;--shadow:0 18px 40px -24px rgba(13,40,80,.3);color-scheme:light}
+html[data-theme="sky"] body::after{background:radial-gradient(900px 500px at 85% -10%,rgba(120,180,240,.25),transparent 60%),radial-gradient(800px 600px at -10% 10%,rgba(255,212,0,.08),transparent 60%)}
+html[data-theme="sunset"] .stand tr.fbrow td{background:rgba(255,170,40,.26)}html[data-theme="sky"] .stand tr.fbrow td{background:rgba(255,212,0,.28)}
+html[data-theme="sunset"] .stand tr.fbrow .tm,html[data-theme="sky"] .stand tr.fbrow .tm{color:var(--ink)}
+html[data-theme="sunset"] .nextup{background:linear-gradient(135deg,rgba(255,160,40,.26),rgba(255,160,40,.04) 60%),var(--navy)}
+html[data-theme="sky"] .nextup{background:linear-gradient(135deg,rgba(255,212,0,.26),rgba(255,212,0,.04) 60%),var(--navy)}
+html[data-theme="sunset"] .card,html[data-theme="sunset"] .box,html[data-theme="sunset"] .quiz,html[data-theme="sunset"] .stat,html[data-theme="sky"] .card,html[data-theme="sky"] .box,html[data-theme="sky"] .quiz,html[data-theme="sky"] .stat{background:var(--navy)}
+html[data-theme="sunset"] .otd{background:rgba(255,160,40,.14);border-color:rgba(200,110,20,.35)}html[data-theme="sky"] .otd{background:rgba(255,212,0,.14);border-color:rgba(200,150,0,.35)}
+html[data-theme="sunset"]{--c1:#a85a00;--c2:#1f5fbf;--c3:#9b2f6a;--c4:#1a7f63}
+html[data-theme="sky"]{--c1:#a87e00;--c2:#1660b8;--c3:#c4511d;--c4:#1a8f72}
 
 /* ===== look & feel ===== */
 :root{--c1:#b88d00;--c2:#4f8fe6;--c3:#d0632f;--c4:#23977a;--br:#ffe500}
@@ -3440,10 +3457,10 @@ function gGTS(el){const b=current;let G=gtsS[b]||newGtsB(b);gts=G;const N=G.item
   on("next",()=>{G.i++;G.ans=null;rerender()})}
 
 /* ===== Themes ===== */
-const THEMES=[["light","Light","#eef1f6","#0d1c3d"],["night","Kadıköy Night","#0d1c3d","#ffe500"],["day","Matchday","#f3f0e6","#1b3878"],["canary","Canary","#ffd60a","#0d1c3d"],["retro","1907 Retro","#efe4cc","#1d2f5c"],["flood","Floodlights","#000000","#ffe500"],["clean","Clean","#ffffff","#1b3878"]];
-/* the light design is the default; everyone is moved to it once (v23), and can switch back in Settings */
-let THEME=(()=>{try{if(localStorage.getItem("fb-look")!=="23"){localStorage.setItem("fb-look","23");localStorage.setItem("fb-theme","light");return "light"}
-  const v=localStorage.getItem("fb-theme");if(THEMES.some(x=>x[0]===v))return v}catch(e){}return "light"})();
+const THEMES=[["light","Light","#eef1f6","#0d1c3d"],["night","Kadıköy Night","#0d1c3d","#ffe500"],["day","Matchday","#f3f0e6","#1b3878"],["canary","Canary","#ffd60a","#0d1c3d"],["retro","1907 Retro","#efe4cc","#1d2f5c"],["flood","Floodlights","#000000","#ffe500"],["clean","Clean","#ffffff","#1b3878"],["bosphorus","Bosphorus","#04212b","#ffe500"],["pitch","Saracoğlu Pitch","#062014","#ffe500"],["sunset","Kadıköy Sunset","#fbeee2","#b8461b"],["sky","Sky Blue","#eaf3fb","#1660b8"]];
+/* Matchday is the default design (v28). Anyone still on the old default (Light) moves to it once; a design someone picked themselves is kept */
+let THEME=(()=>{try{const v=localStorage.getItem("fb-theme");if(localStorage.getItem("fb-look")!=="28"){localStorage.setItem("fb-look","28");if(!v||v==="light"){localStorage.setItem("fb-theme","day");return "day"}}
+  if(THEMES.some(x=>x[0]===v))return v}catch(e){}return "day"})();
 const FONT_EXTRA={retro:"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap",ar:"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"};
 function applyTheme(v){THEME=v;if(v==="retro"&&window.loadFont)loadFont(FONT_EXTRA.retro);document.documentElement.dataset.theme=v;try{localStorage.setItem("fb-theme",v)}catch(e){}const T=THEMES.find(x=>x[0]===v);const sw=document.getElementById("themeSw");if(sw){sw.style.background=`linear-gradient(135deg,${T[2]} 50%,${T[3]} 50%)`;sw.style.boxShadow="0 0 0 1.5px var(--line-2)"}
   const s=document.getElementById("theme");if(s)s.value=v;if(tab==="play"&&playSel[current]==="penalties"&&typeof drawWheel==="function")drawWheel(document.getElementById("wheel"))}
