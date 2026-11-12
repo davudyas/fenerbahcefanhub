@@ -1650,6 +1650,24 @@ html[dir="rtl"] .gztrack{direction:ltr}
 .lgall .lgsc.hid{color:var(--muted);letter-spacing:.06em}
 .lgall .lgpt{text-align:end;font-size:13.5px;font-weight:700}
 .lgall .lgpt.good{color:var(--good)}
+.rflag{display:inline-grid;place-items:center;width:26px;height:26px;margin-inline-start:4px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--dim);opacity:.6;cursor:pointer;flex:none}
+.rflag svg{width:14px;height:14px}
+.rflag:hover,.rflag:focus-visible{opacity:1;color:var(--bad);background:rgba(var(--hl),.06)}
+.rask{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%;font-size:13.5px;padding:4px 0}
+.ptable li .rask,.lgall li .rask{grid-column:1/-1}
+.nm .rflag{width:22px;height:22px;margin-inline-start:6px;vertical-align:-4px}
+.wpfeed li .rflag{vertical-align:middle;width:22px;height:22px}
+.lgpriv .lgmylist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.lgpriv .lgmylist li{display:grid;gap:6px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.lgpriv .lgmylist li>div:first-child{display:flex;flex-direction:column;gap:2px}
+.lgpriv .lgmylist .btns{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.lgpriv code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;letter-spacing:.08em;color:var(--ink)}
+.lgpriv .lgform{display:flex;gap:8px}
+.lgpriv .lgform input{flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit}
+.lgpriv .lginv{border:1.5px solid var(--accent);border-radius:12px;padding:10px 12px}
+.lgpriv .lginv p{margin:0 0 8px}
+.lgpriv .lgleave[data-sure="1"]{border-color:var(--bad);color:var(--bad)}
+#lgLeague{margin-top:6px}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -3143,7 +3161,7 @@ async function initCommunity(){try{if(!window.claude||!window.claude.use)return;
   xSyncScores()}catch(e){}finally{XC.tried=true;if(typeof paintLiveNotes==="function")paintLiveNotes()}}
 
 async function xNames(ids){if(!XC.user)return;const need=ids.filter(i=>XC.names[i]==null);if(!need.length)return;try{const ps=await XC.user.profiles(need);need.forEach(i=>XC.names[i]=(ps[i]&&ps[i].name)||"");xRefresh()}catch(e){}}
-const xName=id=>id===XC.me?t("You"):(XC.names[id]||t("A fan"));
+let xName=id=>id===XC.me?t("You"):(XC.names[id]||t("A fan"));
 function xRefresh(){const f=document.activeElement;if(f&&f.closest&&f.closest("#panel")&&/INPUT|SELECT/.test(f.tagName))return;if(current==="home"&&typeof fillLeague==="function"){fillLeague();return}if(typeof szLiveBoards==="function")szLiveBoards();
   if(tab==="matches"&&XM.L)xFillMatches();else if(tab==="play"&&playSel[current]==="board")renderPanel()}
 async function xWrite(col,data){if(!XC.on||XC.noWrite)return false;try{await XC.db.doc(col+"/"+XC.me).set(data);return true}catch(e){XC.noWrite=true;return false}}
@@ -3171,16 +3189,16 @@ function xFillPred(){const el=document.getElementById("predBox"),nx=XM.nx;if(!el
 function xFillComm(){xFillCommRaw();if(document.getElementById("commBox"))runExt("comm")}
 function xFillCommRaw(){const el=document.getElementById("commBox");if(!el)return;const L=XM.L,last=L.last.find(r=>r[0]),S=SQUADS[current];let motm="";const names=motmNames(current);
   if(last){const key=xKey(current,last[0],last[3]),mine=xVotes()[key];
-    const all=xAllDocs("motm",xVotes(),"v"),cnt={};Object.values(all).forEach(v=>{if(v[key])cnt[v[key]]=(cnt[v[key]]||0)+1});const tot=Object.values(cnt).reduce((a,b)=>a+b,0),top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const all=xAllDocs("motm",xVotes(),"v"),cnt={};Object.values(all).forEach(v=>{if(v[key]&&!modBad(v[key]))cnt[v[key]]=(cnt[v[key]]||0)+1});const tot=Object.values(cnt).reduce((a,b)=>a+b,0),top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,5);
     motm=`<article class="card commcard"><span class="label">${t("Player of the match")}</span><h3>${tf("Fenerbahçe {a}–{b} {o}",{a:last[4],b:last[5],o:last[3]})}</h3><p class="muted">${mDate(last[0])} · ${esc(t(last[1]))}</p>
      ${mine?`<p class="msg good">${tf("You voted for {p}.",{p:esc(mine)})}</p>`:`<div class="prow"><select id="mSel" aria-label="${t("Player of the match")}"><option value="">${t("Choose a player…")}</option>${names.map(n=>`<option>${esc(n)}</option>`).join("")}<option value="__other">${t("Someone else…")}</option></select><input id="mOther" maxlength="40" placeholder="${t("Player name")}" aria-label="${t("Player name")}" hidden><button class="btn" id="mVote">${t("Vote")}</button></div>`}
      ${tot?`<ol class="tally">${top.map(([n,c])=>`<li><span>${esc(n)}</span><i style="width:${Math.max(6,c/tot*100)}%"></i><b>${c}</b></li>`).join("")}</ol>`:`<p class="fine">${t("No votes yet. Be the first to pick the player of the match.")}</p>`}</article>`}
   const rows=xTable();xNames(rows.map(r=>r.id).filter(i=>i!=="me"));
   const table=`<article class="card commcard"><span class="label">${t("Predictor table")}</span><h3>${t("Who reads the game best?")}</h3><p class="muted">${t("3 points for the exact score, 1 for the right result.")}</p>
-   ${rows.length?`<ol class="ptable">${rows.slice(0,10).map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${tf("{n} scored",{n:r.n})}</span><b>${r.pts}</b></li>`).join("")}</ol>`:`<p class="fine">${t("Points appear once a predicted match has been played.")}</p>`}</article>`;
+   ${rows.length?`<ol class="ptable">${rows.slice(0,10).map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}" data-uid="${esc(r.id)}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${tf("{n} scored",{n:r.n})}</span><b>${r.pts}</b></li>`).join("")}</ol>`:`<p class="fine">${t("Points appear once a predicted match has been played.")}</p>`}</article>`;
   el.innerHTML=`<div class="comm">${motm}${table}</div>`;
   const ms=document.getElementById("mSel"),mo=document.getElementById("mOther");if(ms&&mo)ms.onchange=()=>{mo.hidden=ms.value!=="__other";if(!mo.hidden)mo.focus()};
-  const mv=document.getElementById("mVote");if(mv)mv.onclick=async()=>{let v=ms.value;if(v==="__other")v=mo.value.trim().replace(/\s+/g," ").slice(0,40);if(!v)return;const key=xKey(current,last[0],last[3]),V=xVotes();V[key]=v;store.set("fb-motm",V);xFillComm();await xWrite("motm",{v:V,ts:Date.now()});xFillComm();xBadgeCheck()}}
+  const mv=document.getElementById("mVote");if(mv)mv.onclick=async()=>{let v=ms.value;if(v==="__other")v=mo.value.trim().replace(/\s+/g," ").slice(0,40);if(!v)return;if(modBad(v)){xToast(t("Please keep it friendly. Pick another name."));return}const key=xKey(current,last[0],last[3]),V=xVotes();V[key]=v;store.set("fb-motm",V);xFillComm();await xWrite("motm",{v:V,ts:Date.now()});xFillComm();xBadgeCheck()}}
 
 /* scores for the leaderboard */
 const BRS=["football","basketball","womens-basketball","volleyball"];
@@ -3196,7 +3214,7 @@ function gBoard(el){const mine=xCollect(),tbl=xTable();let sel=store.get("fb-boa
   rows.sort((a,b)=>b.v-a.v);xNames(rows.map(r=>r.id).filter(i=>i!=="me"));
   el.innerHTML=`<h2>${t("Leaderboard")}</h2><p class="intro">${t(XC.on?"Best scores from fans who have played on this page. Your bests are shared automatically when you play.":"Your own best scores. Other fans' scores appear here when the page can share them, for example for people you invite to the artifact.")}</p>
    <div class="filter" role="group" aria-label="${t("Board")}">${BOARDS.map(([k,l])=>`<button data-bd="${k}" aria-pressed="${k===sel}">${esc(t(l))}</button>`).join("")}</div>
-   ${rows.length?`<ol class="ptable big">${rows.slice(0,15).map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><b>${r.v}</b></li>`).join("")}</ol>${XC.dl?`<div class="btns"><button class="btn ghost sm" id="bdShare">${t("Save the board as an image")}</button></div>`:""}`
+   ${rows.length?`<ol class="ptable big">${rows.slice(0,15).map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}" data-uid="${esc(r.id)}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><b>${r.v}</b></li>`).join("")}</ol>${XC.dl?`<div class="btns"><button class="btn ghost sm" id="bdShare">${t("Save the board as an image")}</button></div>`:""}`
      :`<div class="empty"><p>${t("Nobody is on this board yet. Play a round and be the first.")}</p>${BOARD_GAME[sel]&&PLAY[current].some(x=>x[0]===BOARD_GAME[sel])?`<button class="btn" data-bdplay="${BOARD_GAME[sel]}">${t("Play now")}</button>`:""}</div>`}
    <p class="livenote" data-livenote></p>`;
   el.querySelectorAll("[data-bd]").forEach(b=>b.onclick=()=>{store.set("fb-board",b.dataset.bd);rerender()});
@@ -4457,7 +4475,7 @@ function fillLeague(){const box=$("leagueBox");if(!box)return;const f=document.a
    ${wk&&wk.pts>0?`<p class="lgstar"><span aria-hidden="true">★</span> ${esc(tf("Top predictor of the last 7 days: {n}, with {p} points.",{n:nameOf(wk),p:wk.pts}))}</p>`:""}
    <div class="lggrid"><article class="card"><span class="label">${t("Table")}</span><select id="lgSel" class="lgsel" aria-label="${t("Branch")}">${["all",...HOME_BR].map(b=>`<option value="${b}" ${b===lgB?"selected":""}>${esc(b==="all"?t("All branches"):t(SPORTS[b].label))}</option>`).join("")}</select>
      <div class="filter lgper" role="group" aria-label="${t("Period")}"><button data-lgp="all" aria-pressed="${lgP==="all"}">${t("Whole season")}</button><button data-lgp="week" aria-pressed="${lgP==="week"}">${t("Last 7 days")}</button></div>
-     ${rows.length?`<ol class="ptable big">${rows.slice(0,15).map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${tf("{n} played · {e} exact",{n:r.n,e:r.ex})}</span><b>${r.pts}</b></li>`).join("")}</ol>${XC.dl?`<div class="btns"><button class="btn ghost sm" data-lgshare>${t("Save the table as an image")}</button></div>`:""}`
+     ${rows.length?`<ol class="ptable big">${rows.slice(0,15).map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}" data-uid="${esc(r.id)}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${tf("{n} played · {e} exact",{n:r.n,e:r.ex})}</span><b>${r.pts}</b></li>`).join("")}</ol>${XC.dl?`<div class="btns"><button class="btn ghost sm" data-lgshare>${t("Save the table as an image")}</button></div>`:""}`
        :`<p class="empty">${t(!Object.keys(P).length?"Nobody is on the table yet. Be the first: predict one of the next games.":lgP==="week"?"None of your predicted matches were played in the last 7 days.":"Points appear once a predicted match has been played.")}</p>`}</article>
     <article class="card"><span class="label">${t("Predict the next games")}</span>${open.length?`<ul class="lgpred">${open.slice(0,8).map(({b,n})=>{const k=xKey(b,n[0],n[4]),m=P[k],hm=n[3]==="H",inp=(w,v)=>`<input type="number" min="0" max="199" inputmode="numeric" data-lgk="${esc(k)}" data-lgw="${w}" value="${v==null?"":v}" aria-label="${esc(w==="f"?"Fenerbahçe":n[4])}">`;
        return `<li style="--br:${BR_ACCENT[b]}"><div><span class="label">${mDate(n[0],true)}${n[1]?" · "+n[1]:""} · ${esc(t(SPORTS[b].label))}</span><b>${esc(hm?"Fenerbahçe":n[4])} – ${esc(hm?n[4]:"Fenerbahçe")}</b></div><div class="lgin">${hm?inp("f",m&&m[0])+"<span>–</span>"+inp("o",m&&m[1]):inp("o",m&&m[1])+"<span>–</span>"+inp("f",m&&m[0])}</div></li>`}).join("")}</ul>
@@ -4479,7 +4497,7 @@ const xChs=()=>store.get("fb-ch",{});
 function chBox(){const b=current,code=CH&&CH.b===b?CH.code:null,res=code?chResults(code):[];xNames(res.map(r=>r.id).filter(i=>i!=="me"));
   return `<section class="card chbox" id="chBox"><div class="chhead"><span class="label">${t("Challenge a friend")}</span>${code?`<h3>${esc(code)}</h3><p class="muted">${tf("Season {s}. Everyone who plays this code gets the same draft options and the same luck in the games.",{s:szDash(CH.season)})}</p>`:`<p class="muted">${t("Create a code and send it to a friend. You both draft from the same options and play the same season with the same luck. Then compare.")}</p>`}</div>
    ${code?`<div class="btns"><button class="btn ghost" data-ch="copy">${t("Copy the code")}</button><button class="btn ghost" data-ch="leave">${t("Leave the challenge")}</button></div>
-     ${res.length?`<ol class="ptable">${res.map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${tf("League: {p}",{p:ordL(r.pos)})} · ${r.r.toFixed(1)}</span><b>${r.t} 🏆</b></li>`).join("")}</ol>`:`<p class="fine">${t("Nobody has finished this season yet. Be the first.")}</p>`}`
+     ${res.length?`<ol class="ptable">${res.map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}" data-uid="${esc(r.id)}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${tf("League: {p}",{p:ordL(r.pos)})} · ${r.r.toFixed(1)}</span><b>${r.t} 🏆</b></li>`).join("")}</ol>`:`<p class="fine">${t("Nobody has finished this season yet. Be the first.")}</p>`}`
    :`<div class="btns chrow"><button class="btn" data-ch="new">${t("Create a challenge")}</button><input id="chIn" placeholder="${t("Have a code? e.g. FB-17-48213")}" aria-label="${t("Challenge code")}" maxlength="14"><button class="btn ghost" data-ch="join">${t("Play this code")}</button></div><p class="msg" id="chMsg" aria-live="polite"></p>`}</section>`}
 function chResults(code){const out={};Object.entries(XC.docs.challenges||{}).forEach(([id,d])=>{const x=d&&d.c&&d.c[code];if(x)out[id]=x});const mine=xChs()[code];if(mine)out[XC.me||"me"]=mine;
   return Object.entries(out).map(([id,x])=>({id,...x})).sort((a,b)=>b.t-a.t||a.pos-b.pos||b.pts-a.pts)}
@@ -4501,7 +4519,7 @@ function szBoard(b){const out={};Object.entries(XC.docs.seasons||{}).forEach(([i
   return Object.entries(out).map(([id,x])=>({id,...x})).sort((a,c)=>c.t-a.t||a.pos-c.pos||c.ts-a.ts).slice(0,8)}
 function szLiveBoards(){const el=document.getElementById("szBoard");if(el){const b=el.dataset.b;el.outerHTML=szBoardHtml(b)}const c=document.getElementById("chBox");if(c&&CH&&CH.b===current){const w=document.createElement("div");w.innerHTML=chBox();c.replaceWith(w.firstElementChild);chWire($("chBox"))}}
 function szBoardHtml(b){const rows=szBoard(b);xNames(rows.map(r=>r.id).filter(i=>i!=="me"));
-  return `<article class="card szboard" id="szBoard" data-b="${b}"><span class="label">${t("Fans' best seasons")}</span>${rows.length?`<ol class="ptable">${rows.map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${szDash(r.s)} · ${tf("League: {p}",{p:ordL(r.pos)})}${r.c?" · "+t("career"):""}</span><b>${r.t} 🏆</b></li>`).join("")}</ol>${XC.dl?`<div class="btns"><button class="btn ghost sm" data-szshare="${b}">${t("Save the board as an image")}</button></div>`:""}`:`<p class="empty">${t("Nobody is on this board yet. Finish a season and be the first.")}</p>`}</article>`}
+  return `<article class="card szboard" id="szBoard" data-b="${b}"><span class="label">${t("Fans' best seasons")}</span>${rows.length?`<ol class="ptable">${rows.map((r,i)=>`<li class="${r.id===XC.me||r.id==="me"?"me":""}" data-uid="${esc(r.id)}"><span class="rk">${i+1}</span><span class="nm">${esc(r.id==="me"?t("You"):xName(r.id))}</span><span class="muted">${szDash(r.s)} · ${tf("League: {p}",{p:ordL(r.pos)})}${r.c?" · "+t("career"):""}</span><b>${r.t} 🏆</b></li>`).join("")}</ol>${XC.dl?`<div class="btns"><button class="btn ghost sm" data-szshare="${b}">${t("Save the board as an image")}</button></div>`:""}`:`<p class="empty">${t("Nobody is on this board yet. Finish a season and be the first.")}</p>`}</article>`}
 document.addEventListener("click",e=>{const x=e.target.closest("[data-szshare]");if(!x)return;const b=x.dataset.szshare,rows=szBoard(b);xShare({title:t("Fans' best seasons"),sub:t(SPORTS[b].label),rows:rows.slice(0,8).map((r,i)=>[i+1,(r.id==="me"?t("You"):xName(r.id))+" · "+szDash(r.s),r.t+" ×"])},x)});
 function crTeam(b){if(b==="football"&&dr){const info=teamInfo(dr.form,dr.picks,dr.captain);return dr.picks.map((p,i)=>({n:p.n,pos:p.pos,r:info.eff[i],r0:info.eff[i],src:p}))}
   const C=TDCFG[b],s=tdS[b];if(!C||!s)return null;const info=tdInfo(C,s.picks);return s.picks.map((p,i)=>({n:p.n,pos:p.pos,r:info.eff[i],r0:info.eff[i],src:p}))}
@@ -4582,7 +4600,7 @@ function lgAllHtml(){const {past,soon}=lgMatches(),list=past.concat(soon);
   if(m.over)rows.sort((a,c)=>(c.pts??-1)-(a.pts??-1)||nm(a).localeCompare(nm(c)));else rows.sort((a,c)=>(c.me-a.me)||nm(a).localeCompare(nm(c)));
   const head=`<p class="lgmhead"><b>${esc(hm?"Fenerbahçe":m.o)} – ${esc(hm?m.o:"Fenerbahçe")}</b><span class="muted">${m.over?(res?tf("Final score: {s}",{s:sc(res)}):t("Result not in yet")):t("Hidden until the final whistle")}</span></p>`;
   const note=`<p class="fine">${m.over?"":(rows.length===1?t("1 fan has predicted this match. Predictions are revealed after the final whistle."):tf("{n} fans have predicted this match. Predictions are revealed after the final whistle.",{n:rows.length}))}</p>`;
-  const li=r=>{const show=m.over||r.me;return `<li class="${r.me?"me":""}"><span class="nm">${esc(nm(r))}</span><b class="lgsc${show?"":" hid"}" ${show?"":`aria-label="${esc(t("Hidden until the final whistle"))}"`}>${show?sc(r.v):"–:–"}</b>${r.pts!=null?`<span class="lgpt ${r.pts===3?"good":r.pts?"":"muted"}">${tf(r.pts===1?"1 pt":"{n} pts",{n:r.pts})}</span>`:"<span></span>"}</li>`};
+  const li=r=>{const show=m.over||r.me;return `<li class="${r.me?"me":""}" data-uid="${esc(r.id)}"><span class="nm">${esc(nm(r))}</span><b class="lgsc${show?"":" hid"}" ${show?"":`aria-label="${esc(t("Hidden until the final whistle"))}"`}>${show?sc(r.v):"–:–"}</b>${r.pts!=null?`<span class="lgpt ${r.pts===3?"good":r.pts?"":"muted"}">${tf(r.pts===1?"1 pt":"{n} pts",{n:r.pts})}</span>`:"<span></span>"}</li>`};
   return `<span class="label">${t("Everyone's predictions")}</span>${sel}${head}${rows.length?`<ul class="lgall">${rows.slice(0,40).map(li).join("")}</ul>`:`<p class="fine">${t("No predictions for this match yet.")}</p>`}${m.over?"":note}`}
 function lgAddAll(){const box=$("leagueBox"),g=box&&box.querySelector(".lggrid");if(!g)return;let c=g.querySelector(".lgallc");if(!c){c=document.createElement("article");c.className="card lgallc";g.appendChild(c)}
   c.innerHTML=lgAllHtml();const s=c.querySelector("#lgMSel");if(s)s.onchange=()=>{lgM=s.value;lgAddAll();const n=$("lgMSel");if(n)n.focus()}}
@@ -4825,7 +4843,7 @@ KAN_CHIPS_TAB.race=["Can we still win the league?","Who is our main rival?","How
 const RT={room:null,user:null,names:{},tried:false};
 async function rtRoom(){if(RT.room||RT.tried)return RT.room;RT.tried=true;try{const c=window.claude;if(!c||!c.use)return null;RT.room=await c.use("room");RT.user=await c.use("user")}catch(e){RT.room=null}return RT.room}
 async function rtNames(ids){ids=ids.filter(i=>i&&!(i in RT.names));if(!ids.length||!RT.user||!RT.user.profiles)return false;ids.forEach(i=>RT.names[i]="");try{const ps=await RT.user.profiles(ids);ids.forEach(i=>RT.names[i]=(ps[i]&&ps[i].name)||"")}catch(e){}return true}
-const rtName=(peer)=>{if(!peer)return t("Someone");if(peer.isMe)return t("You");const n=peer.by&&RT.names[peer.by];return n||(peer.presence&&typeof peer.presence.nick==="string"&&peer.presence.nick.slice(0,24))||t("A fan")};
+let rtName=(peer)=>{if(!peer)return t("Someone");if(peer.isMe)return t("You");const n=peer.by&&RT.names[peer.by];return n||(peer.presence&&typeof peer.presence.nick==="string"&&peer.presence.nick.slice(0,24))||t("A fan")};
 const rtNoRoom=()=>`<p class="msg">${t("Live features couldn't connect right now. You can still play everything else here.")}</p>`;
 
 /* ---------------- Live quiz ---------------- */
@@ -4928,7 +4946,7 @@ async function wpOpen(b){const f=wpFixture(b);if(!f)return;const R=await rtRoom(
     <p class="fine">${t("Messages are only seen by fans on the page right now and aren't saved. Your reactions are saved so the match page can show the loudest moments.")}</p></article>`,title);
   const ov=$("ov"),obs=new MutationObserver(()=>{if(ov.hidden){wpClose();obs.disconnect()}});obs.observe(ov,{attributes:true,attributeFilter:["hidden"]});
   document.querySelectorAll("[data-wpr]").forEach(x=>x.onclick=()=>wpReact(x.dataset.wpr));
-  $("wpForm").onsubmit=e=>{e.preventDefault();const v=$("wpIn").value.trim();if(!v||Date.now()-WP.last<1500)return;WP.last=Date.now();WP.nr.emit("chat",{x:v.slice(0,140),m:wpMin(WP.f)}).catch(()=>xToast(t("Messages can't be sent from this view.")));$("wpIn").value=""};
+  $("wpForm").onsubmit=e=>{e.preventDefault();const v=$("wpIn").value.trim();if(!v||Date.now()-WP.last<1500)return;if(modBad(v)){xToast(t("Please keep it friendly. That message wasn't sent."));return}WP.last=Date.now();WP.nr.emit("chat",{x:v.slice(0,140),m:wpMin(WP.f)}).catch(()=>xToast(t("Messages can't be sent from this view.")));$("wpIn").value=""};
   WP.clock=setInterval(()=>{const c=$("wpClock");if(!c||!WP){clearInterval(WP&&WP.clock);return}const m=wpMin(WP.f);c.textContent=m<0?tf("Kick-off in {n} min",{n:-m}):m<130?tf("About {n}' played",{n:Math.min(m,120)}):t("Full time")},1000);wpDraw()}
 function wpClose(){if(!WP)return;clearInterval(WP.clock);WP.un.forEach(u=>{try{u()}catch(e){}});try{WP.nr.leave()}catch(e){}wpFlush();WP=null}
 let wpRT=0;
@@ -4939,7 +4957,7 @@ function wpFlush(){if(!WP||!WP.pend)return;WP.pend=false;xWrite("watch",{w:xWatc
 function wpFloat(e){const f=$("wpFloat");if(!f)return;const s=document.createElement("span");s.textContent=e;s.style.left=(10+Math.random()*80)+"%";f.appendChild(s);setTimeout(()=>s.remove(),2200)}
 function wpDraw(){if(!WP)return;WP_REACT.forEach(([k])=>{const c=$("wpc-"+k);if(c)c.textContent=WP.counts[k]||0});const F=$("wpFeed");if(!F)return;
   F.innerHTML="";WP.feed.slice(0,40).forEach(x=>{const li=document.createElement("li");const who=document.createElement("b");who.textContent=rtName(x.p);const mn=document.createElement("span");mn.className="muted";mn.textContent=x.min<0?t("pre-match"):`${x.min}'`;
-    const body=document.createElement("span");body.textContent=x.k==="c"?x.x:`${x.r[1]} ${t(x.r[2])}`;li.append(mn," ",who," ",body);if(x.k==="r")li.className="r";F.appendChild(li)})}
+    const body=document.createElement("span");if(x.p&&x.p.by)li.dataset.uid=x.p.by;if(x.k==="c")li.dataset.msg=x.x;body.textContent=x.k==="c"?modClean(x.x):`${x.r[1]} ${t(x.r[2])}`;li.append(mn," ",who," ",body);if(x.k==="r")li.className="r";F.appendChild(li)})}
 /* loudest moments on the match page, from everyone's saved reactions */
 function wpMoments(key){const all=xAllDocs("watch",xWatch(),"w"),B={};Object.values(all).forEach(W=>{const M=W&&W[key];if(!M)return;Object.entries(M).forEach(([bk,o])=>{B[bk]=B[bk]||{};Object.entries(o||{}).forEach(([k,v])=>{v=+v;if(v>0&&v<500)B[bk][k]=(B[bk][k]||0)+v})})});return B}
 function wpMomentsHtml(key){const B=wpMoments(key),ks=Object.keys(B).map(Number).sort((a,c)=>a-c);if(!ks.length)return "";const tot=k=>Object.values(B[k]).reduce((a,v)=>a+v,0),mx=Math.max(...ks.map(tot)),peak=ks.reduce((a,k)=>tot(k)>tot(a)?k:a,ks[0]),top=Object.entries(B[peak]).sort((a,c)=>c[1]-a[1])[0],R0=WP_REACT.find(x=>x[0]===top[0]);
@@ -5307,6 +5325,34 @@ function renderCupBox(){const el=document.getElementById("cupBox");if(!el||!dr)r
   el.innerHTML=`<span class="label">${t("Your XI")}</span><div class="ovr" style="margin-top:8px"><span class="big">${g.str.toFixed(1)}</span><dl><dt>${t("Team strength")}</dt><dd>${t("65% average, 35% weakest")}</dd><dt>${t("Avg rating")}</dt><dd>${g.avg.toFixed(1)}</dd><dt>${t("Weakest")}</dt><dd>${esc(weak.short)} · ${weak.r}</dd><dt>${t("Seasons spun")}</dt><dd>${dr.spun.length}</dd></dl></div>
    <h3 style="margin-top:10px">${t(tier(g.str))}</h3><p class="gnote">${t("Pick a season below and play it through.")}</p>`;
   const host=el.closest(".draft");if(!host)return;szRender("football",szArea(host),g.str,t("Your XI"),()=>{szS.football=null;newDraft();renderPanel()})}
+
+/* ===== Keeping it friendly: a word filter for fan names, chat, write-in votes and league names =====
+   Matching works on a simplified form of the text: lower case, Turkish/accented letters folded, look-alike digits
+   turned back into letters and repeated letters squeezed ("fuuuck" -> "fuck"). Words marked "=" must be a whole word,
+   "^" must start a word, "*" may appear anywhere (only for long, unmistakable words, so normal words aren't caught). */
+const MOD_WORDS=(()=>{const L={
+  "=":"amk aq oç sik yarak yarrak kahpe gavat puşt pust kaltak sürtük surtuk ibne şerefsiz serefsiz cock twat slut whore fag fags cunt shit bitch bitches bastard asshole wanker nigger niggers nigga niggas faggot faggots neger spast kike spic chink paki tranny nazi puta puto pute putain salope connard connasse joder mierda cabron cabrón gilipollas maricon maricón pendejo fdp hdp fick ficken ficker fotze nique niquer zob زب كس عرص خول قحبة شرموط شرموطة منيوك",
+  "^":"fuck sikt siker sikey sikiy sikis sikiş sikim amcik amcık orosp oruspu pezeven scheis scheiß arschloch hurens wichs schlamp schwuchtel missgeb encul batard bâtard shitt motherf",
+  "*":"fuck faggot motherfuck orospu siktir sikerim sikeyim aminakoy pezevenk hurensohn wichser"};
+  const out={"=":[],"^":[],"*":[]};Object.entries(L).forEach(([m,s])=>s.split(/\s+/).filter(Boolean).forEach(w=>{const n=modNorm(w);if(n)out[m].push({n,sq:modSq(n)===n})}));return out})();
+/* lower case, folded letters and look-alike digits; modSq also squeezes repeated letters */
+function modNorm(s){return String(s||"").toLocaleLowerCase("tr").replace(/i̇/g,"i")
+  .replace(/[ıİ]/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g").replace(/ç/g,"c").replace(/[öô]/g,"o").replace(/[üû]/g,"u").replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i").replace(/ñ/g,"n").replace(/ß/g,"ss")
+  .replace(/0/g,"o").replace(/1/g,"i").replace(/3/g,"e").replace(/4/g,"a").replace(/5/g,"s").replace(/7/g,"t").replace(/@/g,"a").replace(/\$/g,"s")}
+function modSq(n){return n.replace(/([\p{L}])\1+/gu,"$1")}
+/* true if the text contains a word from the list. Words with double letters (like "nigger") are only matched as written,
+   so squeezing never turns them into ordinary words (like "Niger") */
+function modBad(s){const n0=modNorm(s);if(!n0)return false;const T0=n0.split(/[^\p{L}]+/u).filter(Boolean),T1=T0.map(modSq);
+  const hit=(toks,useSq)=>{const ok=e=>useSq?e.sq:true;if(toks.some(w=>MOD_WORDS["="].some(e=>ok(e)&&w===e.n)||MOD_WORDS["^"].some(e=>ok(e)&&w.startsWith(e.n))))return true;
+    const j=toks.join("");return MOD_WORDS["*"].some(e=>ok(e)&&j.includes(e.n))};
+  return hit(T0,false)||hit(T1,true)}
+/* the same text with offending words replaced by asterisks */
+function modClean(s){s=String(s||"");if(!modBad(s))return s;
+  const out=s.split(/(\s+)/).map(p=>/^\s+$/.test(p)||!modBad(p)?p:p.replace(/\S/g,"*")).join("");return modBad(out)?out.replace(/\S/g,"*"):out}
+
+/* names: an offensive fan name shows as "A fan" everywhere */
+{const _xn=xName;xName=id=>{const n=_xn(id);return n&&id!==XC.me&&modBad(n)?t("A fan"):n}}
+{const _rn=rtName;rtName=p=>{const n=_rn(p);return n&&!(p&&p.isMe)&&modBad(n)?t("A fan"):n}}
 
 /* [regex, Turkish, German]: $1 = raw group, @1 = translated group, @l1 lower-cased, @U1 capitalised; or a function (m, g) */
 const TR_DECADE={"40":"larda","50":"lerde","60":"larda","70":"lerde","80":"lerde","90":"larda","00":"lerde","10":"larda","20":"lerde"};
@@ -5737,7 +5783,7 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     async profiles(ids){ids=[...new Set(ids)].filter(Boolean);const out={};const need=ids.filter(i=>!(i in NAMES));
       if(need.length){const {data}=await c.from("profiles").select("id,name").in("id",need.slice(0,200));need.forEach(i=>NAMES[i]="");(data||[]).forEach(r=>NAMES[r.id]=r.name||"")}
       ids.forEach(i=>out[i]={name:NAMES[i]||""});return out},
-    async setName(n){n=String(n||"").replace(/\s+/g," ").trim().slice(0,24);const {error}=await c.from("profiles").upsert({id:me,name:n,updated_at:new Date().toISOString()});if(error)throw error;NAMES[me]=n;return n},
+    async setName(n){n=String(n||"").replace(/\s+/g," ").trim().slice(0,24);if(n&&modBad(n))throw Object.assign(new Error("rude"),{code:"rude"});const {error}=await c.from("profiles").upsert({id:me,name:n,updated_at:new Date().toISOString()});if(error)throw error;NAMES[me]=n;return n},
     myName(){return NAMES[me]||""}}}
 
   /* ---- room: join(name) gives emit/on/presence/peers/onPeers/leave over Supabase Realtime ---- */
@@ -5777,7 +5823,7 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     if(/already|exists|registered|taken/.test(m))return err("taken");if(/invalid login|credentials/.test(m))return err("wrong");if(/password/.test(m)&&/(short|least|weak|characters)/.test(m))return err("pw");return err("net")};
   async function account(){const c=client();if(!c)return null;const {data}=await c.auth.getSession();const u=data&&data.session&&data.session.user;if(!u)return null;
     const em=u.email||"";return {anon:!!u.is_anonymous||!em,username:em.endsWith("@"+U_DOM)?em.slice(0,-U_DOM.length-1):(em||null)}}
-  async function register(name,pw){const c=client();if(!c)throw err("net");const u=String(name||"").trim().toLowerCase();if(!uOk(u))throw err("name");if(String(pw||"").length<6)throw err("pw");
+  async function register(name,pw){const c=client();if(!c)throw err("net");const u=String(name||"").trim().toLowerCase();if(!uOk(u))throw err("name");if(modBad(u))throw err("rude");if(String(pw||"").length<6)throw err("pw");
     const me=await uid();if(!me)throw err("net");const a=await account();if(a&&!a.anon)throw err("already");
     let r=await c.auth.updateUser({email:uMail(u)});if(r.error)throw authErr(r.error);
     r=await c.auth.updateUser({password:pw});if(r.error)throw authErr(r.error);
@@ -5808,10 +5854,10 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     const tour=pan.querySelector("#setTour");const row=document.createElement("label");row.className="setrow";
     row.innerHTML=`<span>${t("Your fan name")}</span><span class="fnrow"><input id="setName" maxlength="24" autocomplete="nickname" value="${esc(cur)}" placeholder="${esc(t("e.g. Kadıköy Kanaryası"))}"><button class="btn ghost sm" type="button" id="setNameOk">${t("Save")}</button></span><small>${t("Shown on leaderboards and in watch parties. Leave it empty to appear as “A fan”.")}</small>`;
     (tour?tour.closest(".btns"):pan.lastElementChild).before(row);
-    const save=async()=>{const b=$("setNameOk");b.disabled=true;try{const n=await XC.user.setName($("setName").value);XC.names[XC.me]=n;RT.names[XC.me]=n;xToast(n?tf("Saved. You're {n} now.",{n}):t("Saved."));xRefresh()}catch(e){xToast(t("Couldn't save your name. Try again."))}b.disabled=false};
+    const save=async()=>{const b=$("setNameOk");b.disabled=true;try{const n=await XC.user.setName($("setName").value);XC.names[XC.me]=n;RT.names[XC.me]=n;xToast(n?tf("Saved. You're {n} now.",{n}):t("Saved."));xRefresh()}catch(e){xToast(t(e&&e.code==="rude"?"Please keep it friendly. Pick another name.":"Couldn't save your name. Try again."))}b.disabled=false};
     $("setNameOk").onclick=save;$("setName").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();save()}}};
   const AE={name:"Usernames need 3–20 letters (a–z), numbers, dots, dashes or underscores.",pw:"Passwords need at least 6 characters.",taken:"That username is already taken. Pick another one.",
-    wrong:"Wrong username or password.",slow:"Too many attempts. Wait a few minutes and try again.",net:"Couldn't connect. Try again.",already:"You're already logged in."};
+    wrong:"Wrong username or password.",slow:"Too many attempts. Wait a few minutes and try again.",net:"Couldn't connect. Try again.",rude:"Please keep it friendly. Pick another name.",already:"You're already logged in."};
   async function fillAccount(){const box=$("setAcct");if(!box)return;const a=await FB_SITE.account().catch(()=>null);if(!$("setAcct"))return;acBtnLabel(a);
     if(a&&!a.anon){box.innerHTML=`<b class="acctin">${tf("Logged in as {u}.",{u:`<b>${esc(a.username||"")}</b>`})}</b><small>${t("Your points, predictions and fan name are saved to your account. Log in with the same username on any device.")}</small><div class="btns"><button class="btn ghost sm" type="button" id="acOut">${t("Log out")}</button></div>`;
       $("acOut").onclick=async()=>{$("acOut").disabled=true;await FB_SITE.logout();location.reload()};return}
@@ -5847,6 +5893,84 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
   document.addEventListener("change",e=>{if(e.target&&(e.target.id==="lang"||e.target.id==="setLang"))setTimeout(()=>{FB_SITE.account().then(acBtnLabel).catch(()=>{});const p=$("acPanel");if(p&&!p.hidden){$("acTitle").textContent=t("Your account");fillAccount()}},500)},true);
   /* load my own name once signed in */
   const wait=setInterval(()=>{if(XC.on&&XC.user&&XC.user.profiles){clearInterval(wait);XC.user.profiles([XC.me]).then(()=>{const f=$("setName"),n=XC.user.myName();if(f&&n&&!f.value&&document.activeElement!==f)f.value=n}).catch(()=>{})}},800);setTimeout(()=>clearInterval(wait),30000)})();
+
+/* ===== Stand-alone site: private prediction leagues, reporting names and messages ===== */
+(function(){if(!window.FB_SITE)return;
+  /* an invite link looks like …#league=ABC234; remember the code and open the home page */
+  let PENDING=null;{const m=location.hash.match(/^#league=([A-Za-z2-9]{6})$/);if(m){PENDING=m[1].toUpperCase();try{history.replaceState(null,"","#all")}catch(e){location.hash="all"}}}
+  const LG={list:[],members:{},ready:false};
+  let lgL=(()=>{try{return localStorage.getItem("fb-lg-sel")||"all"}catch(e){return "all"}})();
+  const cl=()=>FB_SITE.client();
+  async function lgLoad(){const c=cl();if(!c||!FB_SITE.on)return;
+    const [a,b]=await Promise.all([c.from("leagues").select("code,name,owner").order("created_at"),c.from("league_members").select("code,id")]);
+    if(a.error||b.error)return;LG.list=a.data||[];LG.members={};(b.data||[]).forEach(r=>(LG.members[r.code]=LG.members[r.code]||new Set()).add(r.id));LG.ready=true;
+    if(lgL!=="all"&&!LG.list.some(l=>l.code===lgL))lgL="all";xNames([...new Set((b.data||[]).map(r=>r.id))]);if(typeof fillLeague==="function")fillLeague()}
+  const ERR={bad:"League names need 1–30 characters.",rude:"Please keep it friendly. Pick another name.",none:"There's no league with that code. Check it and try again.",
+    full:"That league is full.",many:"You can run up to 10 leagues.",net:"Couldn't connect. Try again."};
+  const errOf=e=>{const m=(e&&e.message||"").toLowerCase();return /no such/.test(m)?"none":/full/.test(m)?"full":/too many/.test(m)?"many":/bad name/.test(m)?"bad":"net"};
+  async function lgCreate(name){name=String(name||"").replace(/\s+/g," ").trim();if(!name||name.length>30)throw {k:"bad"};if(modBad(name))throw {k:"rude"};
+    const {data,error}=await cl().rpc("create_league",{league_name:name});if(error)throw {k:errOf(error)};lgL=data;store.set("fb-lg-sel",lgL);await lgLoad();return data}
+  async function lgJoin(code){code=String(code||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");if(!/^[A-Z2-9]{6}$/.test(code))throw {k:"none"};
+    const {data,error}=await cl().rpc("join_league",{league_code:code});if(error)throw {k:errOf(error)};lgL=code;store.set("fb-lg-sel",lgL);await lgLoad();return data}
+  async function lgLeave(code){const {error}=await cl().rpc("leave_league",{league_code:code});if(error)throw {k:"net"};if(lgL===code){lgL="all";store.set("fb-lg-sel","all")}await lgLoad()}
+  const invite=code=>location.origin+location.pathname+"#league="+code;
+
+  /* the fan prediction table can show just the members of one of your leagues */
+  {const _t=lgTable;lgTable=(b,per)=>{const r=_t(b,per);if(lgL==="all"||!LG.members[lgL])return r;const M=LG.members[lgL];return r.filter(x=>M.has(x.id==="me"?XC.me:x.id))}}
+  {const _fl=fillLeague;fillLeague=function(){_fl();lgPaint()}}
+  function lgPaint(){const box=$("leagueBox"),g=box&&box.querySelector(".lggrid");if(!g||!FB_SITE.on)return;
+    const tcard=g.querySelector("article.card");if(tcard&&LG.list.length&&!tcard.querySelector("#lgLeague")){const sel=document.createElement("select");sel.id="lgLeague";sel.className="lgsel";sel.setAttribute("aria-label",t("League"));
+      sel.innerHTML=`<option value="all">${esc(t("All fans"))}</option>`+LG.list.map(l=>`<option value="${esc(l.code)}" ${l.code===lgL?"selected":""}>${esc(modClean(l.name))}</option>`).join("");if(lgL==="all")sel.value="all";
+      const bs=tcard.querySelector("#lgSel");(bs||tcard.querySelector(".label")).after(sel);sel.onchange=()=>{lgL=sel.value;store.set("fb-lg-sel",lgL);fillLeague();const n=$("lgLeague");if(n)n.focus()}}
+    let c=g.querySelector(".lgpriv");if(!c){c=document.createElement("article");c.className="card lgpriv";c.id="lgPriv";g.appendChild(c)}
+    const mine=LG.list.map(l=>{const n=LG.members[l.code]?LG.members[l.code].size:1;return `<li><div><b>${esc(modClean(l.name))}</b><span class="muted">${tf(n===1?"1 member":"{n} members",{n})} · ${t("Code")} <code>${esc(l.code)}</code></span></div>
+      <div class="btns"><button class="btn ghost sm" type="button" data-lgcopy="${esc(l.code)}">${t("Copy invite link")}</button><button class="btn ghost sm" type="button" data-lgshow="${esc(l.code)}">${t("Show table")}</button><button class="btn ghost sm lgleave" type="button" data-lgleave="${esc(l.code)}">${t("Leave")}</button></div></li>`}).join("");
+    const guest=FB_SITE._anon!==false;
+    c.innerHTML=`<span class="label">${t("Private leagues")}</span><p class="fine">${t("Play the prediction league with just your friends. Everyone predicts as usual; your league gets its own table. Share the invite link in your group chat.")}</p>
+      ${PENDING?`<div class="lginv"><p>${tf("You've been invited to a private league (code {c}).",{c:`<code>${esc(PENDING)}</code>`})}</p><div class="btns"><button class="btn sm" type="button" id="lgInvYes">${t("Join league")}</button><button class="btn ghost sm" type="button" id="lgInvNo">${t("No thanks")}</button></div></div>`:""}
+      ${mine?`<ul class="lgmylist">${mine}</ul>`:""}
+      <form class="lgform" id="lgNewF"><input id="lgNew" maxlength="30" placeholder="${esc(t("League name, e.g. Kadıköy Crew"))}" aria-label="${esc(t("League name"))}"><button class="btn sm" type="submit">${t("Create league")}</button></form>
+      <form class="lgform" id="lgJoinF"><input id="lgCode" maxlength="6" autocapitalize="characters" spellcheck="false" placeholder="${esc(t("Code, e.g. ABC234"))}" aria-label="${esc(t("League code"))}"><button class="btn ghost sm" type="submit">${t("Join")}</button></form>
+      <p class="fine" id="lgPMsg" role="status" aria-live="polite"></p>
+      ${guest?`<p class="fine">${t("Tip: create an account (top right) to keep your leagues when you switch devices.")}</p>`:""}`;
+    const msg=x=>{const m=$("lgPMsg");if(m)m.textContent=x};
+    const busy=(f,el)=>async e=>{e&&e.preventDefault&&e.preventDefault();const bs=c.querySelectorAll("button");bs.forEach(b=>b.disabled=true);try{await f(el)}catch(x){msg(t(ERR[x&&x.k]||ERR.net))}bs.forEach(b=>b.disabled=false)};
+    $("lgNewF").onsubmit=busy(async()=>{const code=await lgCreate($("lgNew").value);xToast(tf("League created. Share the code {c} or copy the invite link.",{c:code}))});
+    $("lgJoinF").onsubmit=busy(async()=>{const r=await lgJoin($("lgCode").value);xToast(tf("You joined {n}.",{n:modClean(r.name)}))});
+    if(PENDING){$("lgInvYes").onclick=busy(async()=>{const code=PENDING;const r=await lgJoin(code);PENDING=null;xToast(tf("You joined {n}.",{n:modClean(r.name)}));lgPaint()});$("lgInvNo").onclick=()=>{PENDING=null;lgPaint()}}
+    c.querySelectorAll("[data-lgcopy]").forEach(b=>b.onclick=async()=>{const u=invite(b.dataset.lgcopy);try{await navigator.clipboard.writeText(u);xToast(t("Invite link copied."))}catch(e){msg(u)}});
+    c.querySelectorAll("[data-lgshow]").forEach(b=>b.onclick=()=>{lgL=b.dataset.lgshow;store.set("fb-lg-sel",lgL);fillLeague();const s=$("lgLeague");if(s){s.scrollIntoView({block:"center",behavior:"smooth"});s.focus()}});
+    c.querySelectorAll("[data-lgleave]").forEach(b=>b.onclick=busy(async()=>{if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent=t("Click again to leave");return}await lgLeave(b.dataset.lgleave);xToast(t("You left the league."))}));
+    if(PENDING&&!c.dataset.scrolled){c.dataset.scrolled="1";setTimeout(()=>c.scrollIntoView({block:"center",behavior:"smooth"}),400)}}
+
+  /* ---- reports: a small flag next to other fans' names and messages ---- */
+  const HIDDEN=new Set();
+  {const _xn=xName;xName=id=>HIDDEN.has(id)&&id!==XC.me?t("A fan"):_xn(id)}
+  {const _rn=rtName;rtName=p=>p&&!p.isMe&&HIDDEN.has(p.by)?t("A fan"):_rn(p)}
+  const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  async function report(uid,kind,content){const {error}=await cl().from("reports").insert({reporter:XC.me,target:uid,kind,content:String(content||"").slice(0,300)});
+    if(error&&error.code!=="23505")throw error}
+  function flag(el){const uid=el.dataset.uid;el.dataset.rep="1";if(!UUID.test(uid)||uid===XC.me)return;const kind=el.dataset.msg!=null?"message":"name";
+    const b=document.createElement("button");b.type="button";b.className="rflag";b.setAttribute("aria-label",t(kind==="message"?"Report this message":"Report this name"));b.title=b.getAttribute("aria-label");
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
+    b.onclick=e=>{e.stopPropagation();if(el.querySelector(".rask"))return;const ask=document.createElement("span");ask.className="rask";
+      ask.innerHTML=`<span>${t(kind==="message"?"Report this message?":"Report this name?")}</span><button type="button" class="btn sm" data-r="y">${t("Report")}</button><button type="button" class="btn ghost sm" data-r="n">${t("Cancel")}</button>`;
+      el.appendChild(ask);ask.querySelector('[data-r="n"]').onclick=ev=>{ev.stopPropagation();ask.remove()};
+      ask.querySelector('[data-r="y"]').onclick=async ev=>{ev.stopPropagation();ask.querySelectorAll("button").forEach(x=>x.disabled=true);
+        try{await report(uid,kind,kind==="message"?el.dataset.msg:(XC.names[uid]||(el.querySelector(".nm")||{}).textContent||""));ask.remove();b.remove();xToast(t("Thanks for letting us know."))}
+        catch(x){ask.remove();xToast(t("Couldn't send the report. Try again."))}}};
+    const nm=el.querySelector(".nm");(nm||el).appendChild(b)}
+  const scan=()=>{if(!FB_SITE.on||!XC.me)return;document.querySelectorAll("[data-uid]:not([data-rep])").forEach(flag)};
+  let st=null;new MutationObserver(()=>{clearTimeout(st);st=setTimeout(scan,120)}).observe(document.body,{childList:true,subtree:true});
+
+  /* start once the shared features are connected */
+  const w=setInterval(async()=>{if(!FB_SITE.on||!XC.me)return;clearInterval(w);
+    try{const a=await FB_SITE.account();FB_SITE._anon=!a||a.anon}catch(e){}
+    try{const {data}=await cl().rpc("hidden_names");(data||[]).forEach(r=>HIDDEN.add(typeof r==="string"?r:(r.hidden_names||r)));if(HIDDEN.size){Object.keys(XC.names).forEach(()=>0);xRefresh()}}catch(e){}
+    await lgLoad();scan();
+    cl().channel("lg-"+Math.random().toString(36).slice(2,8)).on("postgres_changes",{event:"*",schema:"public",table:"league_members"},()=>{clearTimeout(w._t);w._t=setTimeout(lgLoad,600)}).subscribe()},700);
+  setTimeout(()=>clearInterval(w),30000);
+})();
 
 WP_FB=wPool(PEOPLE);
 initTheme();initLang();mergeContent();mergeNew();staticTexts();initHelper();initSettings();lookInit();
