@@ -1653,7 +1653,7 @@ html[dir="rtl"] .gztrack{direction:ltr}
 </style>
 
 <header class="bar"><div class="wrap">
-  <a class="brand" href="#all"><svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#0d1c3d" stroke="#ffe500" stroke-width="1.5"/><polygon points="14.5,13 19.5,13 20.5,27 13.5,27" fill="#ffe500"/><rect x="13.5" y="17" width="7" height="2.5" fill="#1b3878"/><rect x="13" y="22" width="8" height="2.5" fill="#1b3878"/><rect x="14.5" y="8.5" width="5" height="4.5" fill="#fff3a0"/><polygon points="13.5,8.5 20.5,8.5 17,5.5" fill="#ffe500"/><path d="M20 10.5 L30 7.5 L30 13.5Z" fill="#ffe500" opacity=".45"/></svg><div><b>Fenerbahçe</b><span data-t="Fan Hub · Kadıköy 1907">Fan Hub · Kadıköy 1907</span></div></a>
+  <a class="brand" href="#all"><svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#0d1c3d" stroke="#ffe500" stroke-width="1.5"/><polygon points="14.5,13 19.5,13 20.5,27 13.5,27" fill="#ffe500"/><rect x="13.5" y="17" width="7" height="2.5" fill="#1b3878"/><rect x="13" y="22" width="8" height="2.5" fill="#1b3878"/><rect x="14.5" y="8.5" width="5" height="4.5" fill="#fff3a0"/><polygon points="13.5,8.5 20.5,8.5 17,5.5" fill="#ffe500"/><path d="M20 10.5 L30 7.5 L30 13.5Z" fill="#ffe500" opacity=".45"/></svg><div><b>Fenerbahçe</b><span data-t="Fan Hub">Fan Hub</span></div></a>
   <div class="picker"><div class="select-wrap"><select id="sport" aria-label="Choose a branch">
     <option value="home" data-t="All branches">All branches</option><option value="football">Football</option><option value="basketball">Men's Basketball</option><option value="womens-basketball">Women's Basketball</option><option value="volleyball">Women's Volleyball</option><option value="mens-volleyball">Men's Volleyball</option><option value="womens-football">Women's Football</option><option value="more">Other Branches</option>
   </select></div></div>
@@ -3290,7 +3290,7 @@ function xResultForRaw(g){const b=current;try{
 function xCard(r){const c=document.createElement("canvas"),S=1080;c.width=S;c.height=S;const x=c.getContext("2d"),cs=getComputedStyle(document.documentElement),Y=cs.getPropertyValue("--yellow").trim()||"#ffe500",N1="#0b1a3d",N2="#050d22",INK="#f3f6ff",MU="#9fb0d6",DISP='"Big Shoulders Display", "Barlow Condensed", Arial Narrow, sans-serif';
   const gr=x.createLinearGradient(0,0,0,S);gr.addColorStop(0,N1);gr.addColorStop(1,N2);x.fillStyle=gr;x.fillRect(0,0,S,S);
   for(let i=0;i<S;i+=88){x.fillStyle=Y;x.fillRect(i,0,44,14);x.fillRect(i+44,S-14,44,14)}
-  x.fillStyle=Y;x.font=`900 64px ${DISP}`;x.fillText("FENERBAHÇE",80,150);x.fillStyle=MU;x.font=`600 30px "Barlow Condensed", Arial, sans-serif`;x.fillText(t("Fan Hub · Kadıköy 1907").toUpperCase(),82,195);
+  x.fillStyle=Y;x.font=`900 64px ${DISP}`;x.fillText("FENERBAHÇE",80,150);x.fillStyle=MU;x.font=`600 30px "Barlow Condensed", Arial, sans-serif`;x.fillText(t("Fan Hub").toUpperCase(),82,195);
   x.fillStyle=INK;x.font=`800 64px ${DISP}`;x.fillText(r.title.toUpperCase().slice(0,30),80,330);
   if(r.rows){if(r.sub){x.fillStyle=MU;x.font=`600 34px "Barlow", Arial, sans-serif`;x.fillText(r.sub.slice(0,60),80,385)}
     r.rows.slice(0,8).forEach(([rk,nm,v],i)=>{const y=480+i*68;x.fillStyle=i===0?Y:MU;x.font=`900 46px ${DISP}`;x.fillText(String(rk),80,y);x.fillStyle=INK;x.font=`600 40px "Barlow", Arial, sans-serif`;let n=String(nm);while(x.measureText(n).width>640&&n.length>4)n=n.slice(0,-2);x.fillText(n===String(nm)?n:n+"…",160,y);
