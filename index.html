@@ -1607,6 +1607,17 @@ html[dir="rtl"] .gztrack{direction:ltr}
 .acct .acform .btns{display:flex;gap:8px;flex-wrap:wrap}
 .acct .acctin{display:block;margin:2px 0;color:var(--ink);font-size:15px;font-weight:600}.acct .acctin b{font-weight:800}
 .acct #acMsg:empty{display:none}
+.acwrap{position:relative;order:4;flex:none}
+.hacct{width:auto;padding:0 14px;max-width:190px}
+.hacct .aclab{position:static;width:auto;height:auto;overflow:hidden;clip:auto;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-family:var(--f-body);font-weight:600}
+.hacct.in{border-color:var(--accent)}
+.acpanel h2{font-size:22px}
+@media (max-width:640px){.hacct{width:42px;padding:0;justify-content:center}.hacct .aclab{position:absolute;width:1px;height:1px;clip:rect(0 0 0 0)}
+  .acpanel{position:fixed;top:72px;left:12px;right:12px;width:auto;max-height:calc(100vh - 90px);overflow:auto}}
+.setpanel h2{color:var(--ink)}
+@media (max-width:430px){.bar .wrap{gap:6px}.brand b{font-size:17px}.brand svg{width:30px;height:30px}
+  .acwrap .hset,.setwrap .hset{width:38px;height:38px}.langpick select{width:64px;height:38px;padding:0}.langpick .lc{gap:4px;font-size:14px;letter-spacing:.05em}.langpick .lc svg{display:none}}
+@media (max-width:350px){.brand b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -5728,25 +5739,43 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     const tour=pan.querySelector("#setTour");const row=document.createElement("label");row.className="setrow";
     row.innerHTML=`<span>${t("Your fan name")}</span><span class="fnrow"><input id="setName" maxlength="24" autocomplete="nickname" value="${esc(cur)}" placeholder="${esc(t("e.g. Kadıköy Kanaryası"))}"><button class="btn ghost sm" type="button" id="setNameOk">${t("Save")}</button></span><small>${t("Shown on leaderboards and in watch parties. Leave it empty to appear as “A fan”.")}</small>`;
     (tour?tour.closest(".btns"):pan.lastElementChild).before(row);
-    const acc=document.createElement("div");acc.className="setrow acct";acc.id="setAcct";row.before(acc);fillAccount();
     const save=async()=>{const b=$("setNameOk");b.disabled=true;try{const n=await XC.user.setName($("setName").value);XC.names[XC.me]=n;RT.names[XC.me]=n;xToast(n?tf("Saved. You're {n} now.",{n}):t("Saved."));xRefresh()}catch(e){xToast(t("Couldn't save your name. Try again."))}b.disabled=false};
     $("setNameOk").onclick=save;$("setName").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();save()}}};
   const AE={name:"Usernames need 3–20 letters (a–z), numbers, dots, dashes or underscores.",pw:"Passwords need at least 6 characters.",taken:"That username is already taken. Pick another one.",
     wrong:"Wrong username or password.",slow:"Too many attempts. Wait a few minutes and try again.",net:"Couldn't connect. Try again.",already:"You're already logged in."};
-  async function fillAccount(){const box=$("setAcct");if(!box)return;const a=await FB_SITE.account().catch(()=>null);if(!$("setAcct"))return;
-    if(a&&!a.anon){box.innerHTML=`<span>${t("Your account")}</span><b class="acctin">${tf("Logged in as {u}.",{u:`<b>${esc(a.username||"")}</b>`})}</b><small>${t("Your points, predictions and fan name are saved to your account. Log in with the same username on any device.")}</small><div class="btns"><button class="btn ghost sm" type="button" id="acOut">${t("Log out")}</button></div>`;
+  async function fillAccount(){const box=$("setAcct");if(!box)return;const a=await FB_SITE.account().catch(()=>null);if(!$("setAcct"))return;acBtnLabel(a);
+    if(a&&!a.anon){box.innerHTML=`<b class="acctin">${tf("Logged in as {u}.",{u:`<b>${esc(a.username||"")}</b>`})}</b><small>${t("Your points, predictions and fan name are saved to your account. Log in with the same username on any device.")}</small><div class="btns"><button class="btn ghost sm" type="button" id="acOut">${t("Log out")}</button></div>`;
       $("acOut").onclick=async()=>{$("acOut").disabled=true;await FB_SITE.logout();location.reload()};return}
-    box.innerHTML=`<span>${t("Your account")}</span><small>${t("You're playing as a guest on this device. Create an account to keep your points, predictions and fan name, and to log in on other devices.")}</small>
+    box.innerHTML=`<small>${t("You're playing as a guest on this device. Create an account to keep your points, predictions and fan name, and to log in on other devices.")}</small>
       <form id="acForm" class="acform" autocomplete="on"><input id="acUser" name="username" autocomplete="username" maxlength="20" autocapitalize="none" spellcheck="false" placeholder="${esc(t("Username"))}" aria-label="${esc(t("Username"))}">
       <input id="acPw" name="password" type="password" autocomplete="current-password" maxlength="72" placeholder="${esc(t("Password"))}" aria-label="${esc(t("Password"))}">
-      <div class="btns"><button class="btn sm" type="submit" data-ac="register">${t("Create account")}</button><button class="btn ghost sm" type="submit" data-ac="login">${t("Log in")}</button></div>
+      <div class="btns"><button class="btn sm" type="button" data-ac="register">${t("Create account")}</button><button class="btn ghost sm" type="submit" data-ac="login">${t("Log in")}</button></div>
       <p class="fine" id="acMsg" role="status" aria-live="polite"></p></form>
       <small>${t("Usernames: 3–20 letters (a–z), numbers, dots, dashes or underscores. There is no password reset, so keep your password somewhere safe.")}</small>`;
-    let mode="login";box.querySelectorAll("[data-ac]").forEach(b=>b.onclick=()=>{mode=b.dataset.ac;$("acPw").autocomplete=mode==="register"?"new-password":"current-password"});
-    $("acForm").onsubmit=async e=>{e.preventDefault();const msg=$("acMsg"),bs=box.querySelectorAll("[data-ac]");bs.forEach(b=>b.disabled=true);msg.textContent=t(mode==="register"?"Creating your account…":"Logging in…");
-      try{if(mode==="register"){const u=await FB_SITE.register($("acUser").value,$("acPw").value);xToast(tf("Account created. You're logged in as {u}.",{u}));fillSettings()}
+    /* Enter logs in; "Create account" registers */
+    let mode="login";const form=$("acForm");
+    box.querySelector('[data-ac="login"]').onclick=()=>{mode="login";$("acPw").autocomplete="current-password"};
+    box.querySelector('[data-ac="register"]').onclick=()=>{mode="register";$("acPw").autocomplete="new-password";form.requestSubmit?form.requestSubmit():form.onsubmit(new Event("submit"))};
+    form.onsubmit=async e=>{e.preventDefault();const m=mode;mode="login";const msg=$("acMsg"),bs=box.querySelectorAll("[data-ac]");bs.forEach(b=>b.disabled=true);msg.textContent=t(m==="register"?"Creating your account…":"Logging in…");
+      try{if(m==="register"){const u=await FB_SITE.register($("acUser").value,$("acPw").value);xToast(tf("Account created. You're logged in as {u}.",{u}));fillAccount();if($("setPanel")&&!$("setPanel").hidden)fillSettings()}
         else{await FB_SITE.login($("acUser").value,$("acPw").value);location.reload()}}
       catch(x){msg.textContent=t(AE[x&&x.code]||AE.net);bs.forEach(b=>b.disabled=false)}}}
+  /* account button in the top bar, next to the language picker */
+  const PERSON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.2-3.8 4-5.6 7.5-5.6s6.3 1.8 7.5 5.6"/></svg>';
+  function acBtnLabel(a){const b=$("acBtn");if(!b)return;const inn=a&&!a.anon;const lab=inn?(a.username||t("Your account")):t("Log in");
+    b.querySelector(".aclab").textContent=lab;b.classList.toggle("in",!!inn);b.setAttribute("aria-label",inn?tf("Logged in as {u}.",{u:a.username||""}).replace(/<[^>]+>/g,""):t("Log in or create an account"))}
+  function initAcct(){const host=document.querySelector(".bar .wrap");if(!host||$("acBtn"))return;const lp=host.querySelector(".langpick");
+    const w=document.createElement("div");w.className="acwrap";w.innerHTML=`<button class="hset hacct" id="acBtn" type="button" aria-expanded="false" aria-controls="acPanel">${PERSON}<span class="aclab">${t("Log in")}</span></button>
+      <div class="setpanel acpanel" id="acPanel" role="dialog" aria-modal="false" aria-labelledby="acTitle" hidden><h2 id="acTitle">${t("Your account")}</h2><div class="setrow acct" id="setAcct"></div></div>`;
+    if(lp)host.insertBefore(w,lp);else host.appendChild(w);
+    const btn=$("acBtn"),pan=$("acPanel");const close=back=>{pan.hidden=true;btn.setAttribute("aria-expanded","false");if(back)btn.focus()};
+    btn.onclick=async()=>{if(!pan.hidden){close(false);return}$("acTitle").textContent=t("Your account");pan.hidden=false;btn.setAttribute("aria-expanded","true");await fillAccount();const f=pan.querySelector("input,button");if(f)f.focus()};
+    document.addEventListener("click",e=>{if(!pan.hidden&&!e.target.closest(".acwrap"))close(false)});
+    pan.addEventListener("keydown",e=>{if(e.key==="Escape"){e.stopPropagation();close(true)}});
+    FB_SITE.account().then(acBtnLabel).catch(()=>{})}
+  /* show the button once the shared features are connected; relabel it when the language changes */
+  const waitAc=setInterval(()=>{if(FB_SITE.on){clearInterval(waitAc);initAcct()}},500);setTimeout(()=>clearInterval(waitAc),30000);
+  document.addEventListener("change",e=>{if(e.target&&(e.target.id==="lang"||e.target.id==="setLang"))setTimeout(()=>{FB_SITE.account().then(acBtnLabel).catch(()=>{});const p=$("acPanel");if(p&&!p.hidden){$("acTitle").textContent=t("Your account");fillAccount()}},500)},true);
   /* load my own name once signed in */
   const wait=setInterval(()=>{if(XC.on&&XC.user&&XC.user.profiles){clearInterval(wait);XC.user.profiles([XC.me]).then(()=>{const f=$("setName"),n=XC.user.myName();if(f&&n&&!f.value&&document.activeElement!==f)f.value=n}).catch(()=>{})}},800);setTimeout(()=>clearInterval(wait),30000)})();
 
