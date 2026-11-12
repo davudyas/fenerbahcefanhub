@@ -1668,6 +1668,28 @@ html[dir="rtl"] .gztrack{direction:ltr}
 .lgpriv .lginv p{margin:0 0 8px}
 .lgpriv .lgleave[data-sure="1"]{border-color:var(--bad);color:var(--bad)}
 #lgLeague{margin-top:6px}
+.modwrap{order:4;flex:none}
+.hmod{color:var(--accent)}
+.moddlg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);display:grid;place-items:start center;padding:24px 12px;overflow:auto}
+.moddlg[hidden]{display:none}
+.modbox{width:min(720px,100%);background:var(--navy);color:var(--ink);border:1px solid var(--line-2);border-radius:18px;padding:18px 20px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+.modtop{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.modtop h2{margin:0;color:var(--ink)}
+.moddlg .seg{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 6px}
+.moddlg .seg button{border:1px solid var(--line-2);background:transparent;color:var(--ink);border-radius:99px;padding:6px 14px;font:inherit;font-weight:600;cursor:pointer}
+.moddlg .seg button.on{background:var(--ink);color:var(--navy);border-color:var(--ink)}
+.mlist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px}
+.mlist li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
+.mhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.mbadge{font-size:12px;font-weight:700;border:1px solid var(--line-2);border-radius:99px;padding:1px 8px;color:var(--muted)}
+.mbadge.bad{border-color:var(--bad);color:var(--bad)}
+.msample{margin:0;font-size:14px;color:var(--muted)}
+.mlist .btns{display:flex;flex-wrap:wrap;gap:6px;margin:0;align-items:center}
+.mdanger{border-color:var(--bad)!important;color:var(--bad)!important}
+.mren{padding:6px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit;min-width:0;width:180px}
+#mFindF{display:flex;gap:8px;margin-top:8px}#mFindF input{flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit}
+@media (max-width:640px){.modwrap{display:none}}
+#modOpen svg{width:16px;height:16px;vertical-align:-3px}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -5761,7 +5783,7 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     const docSnap=(id,d)=>({id,exists:true,data:()=>d});
     return {
       collection(col){return {onSnapshot(cb,err){if(!COLS.includes(col)){err&&err(new Error("unknown collection"));return ()=>{}}
-        const m={};let alive=true;const emit=()=>{if(alive)cb({docs:Object.entries(m).map(([id,d])=>docSnap(id,d))})};
+        const m={};let alive=true;const emit=()=>{if(alive)cb({docs:Object.entries(m).filter(([id])=>!(window.FB_BANNED&&window.FB_BANNED.has(id))).map(([id,d])=>docSnap(id,d))})};
         c.from("docs").select("id,data").eq("col",col).limit(5000).then(({data,error})=>{if(error){err&&err(error);return}(data||[]).forEach(r=>m[r.id]=r.data);emit()});
         const ch=c.channel("db-"+col+"-"+Math.random().toString(36).slice(2,8)).on("postgres_changes",{event:"*",schema:"public",table:"docs",filter:"col=eq."+col},p=>{
           if(p.eventType==="DELETE"){const id=p.old&&p.old.id;if(id){delete m[id];emit()}return}const r=p.new;if(r&&r.id){m[r.id]=r.data;emit()}}).subscribe();
@@ -5970,6 +5992,59 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     await lgLoad();scan();
     cl().channel("lg-"+Math.random().toString(36).slice(2,8)).on("postgres_changes",{event:"*",schema:"public",table:"league_members"},()=>{clearTimeout(w._t);w._t=setTimeout(lgLoad,600)}).subscribe()},700);
   setTimeout(()=>clearInterval(w),30000);
+})();
+
+/* ===== Moderation (admins only; every action is checked again by the database) ===== */
+(function(){if(!window.FB_SITE)return;window.FB_BANNED=new Set();
+  const cl=()=>FB_SITE.client();
+  async function loadBans(){try{const {data}=await cl().rpc("banned_ids");const B=new Set((data||[]).map(r=>typeof r==="string"?r:r.banned_ids));window.FB_BANNED=B;
+    let ch=false;Object.values(XC.docs).forEach(col=>B.forEach(id=>{if(col&&col[id]){delete col[id];ch=true}}));B.forEach(id=>{if(XC.names[id]){XC.names[id]="";ch=true}});if(ch)xRefresh()}catch(e){}}
+  const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>';
+  let tab="reports";
+  const nm=x=>x.name?esc(x.name):'<span class="muted">(no name)</span>';
+  const badges=x=>`${x.registered?`<span class="mbadge">registered${x.username?" · "+esc(x.username):""}</span>`:`<span class="mbadge">guest</span>`}${x.banned?'<span class="mbadge bad">banned</span>':""}`;
+  const acts=(x,dismiss)=>`<div class="btns"><button class="btn ghost sm" data-ma="name" data-id="${x.id||x.target}">Reset name</button><button class="btn ghost sm" data-ma="clear" data-id="${x.id||x.target}">Clear predictions &amp; scores</button>
+    ${x.banned?`<button class="btn ghost sm" data-ma="unban" data-id="${x.id||x.target}">Unban</button>`:`<button class="btn ghost sm mdanger" data-ma="ban" data-id="${x.id||x.target}">Ban</button>`}${dismiss?`<button class="btn ghost sm" data-ma="dismiss" data-id="${x.target}" data-k="${esc(x.kind)}">Dismiss</button>`:""}</div>`;
+  async function paint(){const body=$("modBody");if(!body)return;body.innerHTML='<p class="fine">Loading…</p>';
+    try{if(tab==="reports"){const {data,error}=await cl().rpc("admin_reports");if(error)throw error;
+        body.innerHTML=(data||[]).length?`<ul class="mlist">${data.map(x=>`<li><div class="mhead"><b>${nm(x)}</b>${badges(x)}<span class="muted">${x.kind==="message"?"message":"name"} · ${x.reporters} report${x.reporters===1?"":"s"} · ${esc(mDate(String(x.last).slice(0,10),true))}</span></div>
+          ${(x.samples||[]).filter(Boolean).length?`<p class="msample">${x.samples.filter(Boolean).map(s=>"“"+esc(s)+"”").join("<br>")}</p>`:""}${x.target?acts(x,true):""}</li>`).join("")}</ul>`:'<p class="fine">No reports. All quiet.</p>'}
+      else if(tab==="find"){body.innerHTML=`<form id="mFindF" class="lgform"><input id="mFind" placeholder="Fan name or username" aria-label="Fan name or username"><button class="btn sm" type="submit">Search</button></form><div id="mFound"></div>`;
+        $("mFindF").onsubmit=async e=>{e.preventDefault();const q=$("mFind").value.trim();if(!q)return;const {data,error}=await cl().rpc("admin_find",{q});const f=$("mFound");if(error){f.innerHTML='<p class="fine">Search failed.</p>';return}
+          f.innerHTML=(data||[]).length?`<ul class="mlist">${data.map(x=>`<li><div class="mhead"><b>${nm(x)}</b>${badges(x)}<span class="muted">joined ${esc(mDate(String(x.created_at).slice(0,10),true))}</span></div>${acts(x,false)}</li>`).join("")}</ul>`:'<p class="fine">No fans found.</p>';wire()};$("mFind").focus()}
+      else{const {data,error}=await cl().rpc("admin_leagues");if(error)throw error;
+        body.innerHTML=(data||[]).length?`<ul class="mlist">${data.map(x=>`<li><div class="mhead"><b>${esc(x.name)}</b><span class="muted"><code>${esc(x.code)}</code> · ${x.members} member${x.members===1?"":"s"}${x.owner_name?" · made by "+esc(x.owner_name):""}</span></div>
+          <div class="btns"><input class="mren" value="${esc(x.name)}" maxlength="30" aria-label="New league name"><button class="btn ghost sm" data-ma="lrename" data-id="${esc(x.code)}">Rename</button><button class="btn ghost sm mdanger" data-ma="ldel" data-id="${esc(x.code)}">Delete league</button></div></li>`).join("")}</ul>`:'<p class="fine">No private leagues yet.</p>'}
+      wire()}catch(e){body.innerHTML='<p class="fine">Couldn\'t load this. Try again.</p>'}}
+  const RPC={name:id=>["admin_reset_name",{target:id}],clear:id=>["admin_clear_data",{target:id}],ban:id=>["admin_ban",{target:id,why:null}],unban:id=>["admin_unban",{target:id}],ldel:id=>["admin_delete_league",{c:id}]};
+  const DONE={name:"Name reset.",clear:"Predictions and scores cleared.",ban:"Fan banned. They can't save anything any more and show as “A fan”.",unban:"Ban lifted.",dismiss:"Report dismissed.",ldel:"League deleted.",lrename:"League renamed."};
+  function wire(){document.querySelectorAll("#modBody [data-ma]").forEach(b=>b.onclick=async()=>{const a=b.dataset.ma,id=b.dataset.id;
+    if(["clear","ban","ldel"].includes(a)&&b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Click again to confirm";return}
+    b.disabled=true;let r;
+    if(a==="dismiss")r=await cl().rpc("admin_dismiss",{target:id,k:b.dataset.k});
+    else if(a==="lrename")r=await cl().rpc("admin_rename_league",{c:id,n:b.parentNode.querySelector(".mren").value});
+    else{const [f,args]=RPC[a](id);r=await cl().rpc(f,args)}
+    if(r.error){b.disabled=false;xToast("That didn't work: "+r.error.message);return}
+    xToast(DONE[a]);if(a==="name"||a==="ban"){XC.names[id]="";if(window.RT&&RT.names)RT.names[id]=""}if(a==="clear"||a==="ban")Object.values(XC.docs).forEach(c=>{if(c)delete c[id]});
+    await loadBans();xRefresh();const mb=document.querySelector("#modDlg .modbox");if(mb)mb.focus();if(tab==="find"&&$("mFindF"))$("mFindF").requestSubmit();else paint()})}
+  function open(){let d=$("modDlg");if(!d){d=document.createElement("div");d.id="modDlg";d.className="moddlg";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-labelledby","modT");
+      d.innerHTML=`<div class="modbox" tabindex="-1"><div class="modtop"><h2 id="modT">Moderation</h2><button class="btn ghost sm" type="button" id="modX" aria-label="Close">✕</button></div>
+        <div class="seg" role="tablist"><button type="button" role="tab" data-mt="reports">Reports</button><button type="button" role="tab" data-mt="find">Find a fan</button><button type="button" role="tab" data-mt="leagues">Leagues</button></div>
+        <p class="fine">Only you can see this. Reset name: their name goes back to “A fan”. Clear: deletes their predictions, votes and scores. Ban: they can't save names, predictions or scores and don't appear on leaderboards; it also takes them out of all leagues.</p><div id="modBody"></div></div>`;
+      document.body.appendChild(d);$("modX").onclick=close;d.addEventListener("click",e=>{if(e.target===d)close()});document.addEventListener("keydown",e=>{const m=$("modDlg");if(e.key==="Escape"&&m&&!m.hidden)close()});
+      d.querySelectorAll("[data-mt]").forEach(b=>b.onclick=()=>{tab=b.dataset.mt;mark();paint()})}
+    d.hidden=false;document.body.style.overflow="hidden";mark();paint();$("modX").focus()}
+  function mark(){document.querySelectorAll("#modDlg [data-mt]").forEach(b=>{const on=b.dataset.mt===tab;b.classList.toggle("on",on);b.setAttribute("aria-selected",on)})}
+  function close(){const d=$("modDlg");if(d)d.hidden=true;document.body.style.overflow="";const b=$("modBtn");if(b&&b.offsetParent)b.focus();else{const a=$("acBtn");if(a)a.focus()}}
+  const w=setInterval(async()=>{if(!FB_SITE.on||!XC.me)return;clearInterval(w);await loadBans();
+    try{const {data}=await cl().rpc("is_admin");if(data!==true)return}catch(e){return}
+    const host=document.querySelector(".bar .wrap"),acw=host&&host.querySelector(".acwrap");if(!host||$("modBtn"))return;
+    const b=document.createElement("button");b.id="modBtn";b.type="button";b.className="hset hmod";b.title="Moderation";b.setAttribute("aria-label","Moderation");b.innerHTML=SHIELD;b.onclick=open;
+    const wrap=document.createElement("div");wrap.className="modwrap";wrap.appendChild(b);host.insertBefore(wrap,acw||host.querySelector(".langpick"));
+    /* also a button inside the account panel (the only place it shows on phones) */
+    const addInPanel=()=>{const box=$("setAcct");if(box&&box.querySelector("#acOut")&&!$("modOpen")){const r=document.createElement("div");r.className="btns";r.innerHTML='<button class="btn sm" type="button" id="modOpen">'+SHIELD+' Moderation</button>';box.appendChild(r);$("modOpen").onclick=()=>{const p=$("acPanel");if(p)p.hidden=true;open()}}};
+    new MutationObserver(addInPanel).observe(document.body,{childList:true,subtree:true});addInPanel()},800);
+  setTimeout(()=>clearInterval(w),40000);
 })();
 
 WP_FB=wPool(PEOPLE);
