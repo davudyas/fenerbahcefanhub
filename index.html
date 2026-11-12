@@ -1618,6 +1618,11 @@ html[dir="rtl"] .gztrack{direction:ltr}
 @media (max-width:430px){.bar .wrap{gap:6px}.brand b{font-size:17px}.brand svg{width:30px;height:30px}
   .acwrap .hset,.setwrap .hset{width:38px;height:38px}.langpick select{width:64px;height:38px;padding:0}.langpick .lc{gap:4px;font-size:14px;letter-spacing:.05em}.langpick .lc svg{display:none}}
 @media (max-width:350px){.brand b{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
+.setpanel{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--muted) transparent;scrollbar-gutter:stable}
+.setpanel::-webkit-scrollbar{width:10px}
+.setpanel::-webkit-scrollbar-track{background:transparent;margin:14px 0}
+.setpanel::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 55%,transparent);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+.setpanel::-webkit-scrollbar-thumb:hover{background:var(--muted);background-clip:padding-box}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -5149,6 +5154,13 @@ function lookInit(){EN_NS["nav:Home"]="Home";const hero=document.querySelector("
     bar.insertAdjacentHTML("beforebegin",`<div class="strip" role="region" aria-label="${esc(t("Latest results and next games"))}"><div class="wrap"><div class="strack" id="strack"></div></div></div>`)}
   const pk=document.querySelector(".picker");if(pk){pk.setAttribute("aria-hidden","true");pk.querySelectorAll("select").forEach(s=>s.tabIndex=-1)}
   document.body.insertAdjacentHTML("beforeend",`<nav class="bnav" id="bnav" aria-label="${esc(t("Main"))}"></nav>`);paintChrome()}
+
+/* Settings and account panels: never taller than the screen, with their own scrollbar */
+(function(){const fit=p=>{if(!p||p.hidden)return;p.style.maxHeight="";const r=p.getBoundingClientRect();p.style.maxHeight=Math.max(220,Math.floor(innerHeight-Math.max(r.top,8)-12))+"px"};
+  const fitAll=()=>document.querySelectorAll(".setpanel").forEach(fit);
+  const mo=new MutationObserver(ms=>ms.forEach(m=>{if(m.target.classList&&m.target.classList.contains("setpanel")&&!m.target.hidden)requestAnimationFrame(()=>fit(m.target))}));
+  const watch=()=>document.querySelectorAll(".setpanel").forEach(p=>{if(!p._fitW){p._fitW=1;mo.observe(p,{attributes:true,attributeFilter:["hidden"]})}});
+  setInterval(watch,1000);addEventListener("resize",fitAll);addEventListener("scroll",fitAll,{passive:true})})();
 
 /* ===== XI Draft, Golazo style: spin a formation, spin a season, pick one player from that squad ===== */
 Object.assign(NAT,{SWE:"Sweden",ENG:"England",BEL:"Belgium",MLI:"Mali",RUS:"Russia",CPV:"Cape Verde",GRE:"Greece",COD:"DR Congo",SVN:"Slovenia",MKD:"North Macedonia"});
