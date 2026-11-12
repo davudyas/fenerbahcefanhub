@@ -1623,6 +1623,16 @@ html[dir="rtl"] .gztrack{direction:ltr}
 .setpanel::-webkit-scrollbar-track{background:transparent;margin:14px 0}
 .setpanel::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--muted) 55%,transparent);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
 .setpanel::-webkit-scrollbar-thumb:hover{background:var(--muted);background-clip:padding-box}
+.lgmhead{display:flex;flex-direction:column;gap:2px;margin:2px 0 0}
+.lgmhead b{font-size:17px}
+.lgall{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.lgall li{display:grid;grid-template-columns:1fr auto 56px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.lgall li:last-child{border-bottom:0}
+.lgall li.me .nm{font-weight:700}
+.lgall .lgsc{font-variant-numeric:tabular-nums;font-size:16px;min-width:44px;text-align:center}
+.lgall .lgsc.hid{color:var(--muted);letter-spacing:.06em}
+.lgall .lgpt{text-align:end;font-size:13.5px;font-weight:700}
+.lgall .lgpt.good{color:var(--good)}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -4531,6 +4541,35 @@ EXT.search.push(I=>{const seen=new Set();
   EU_TIES.forEach(r=>{if(seen.has(r[3]))return;seen.add(r[3]);const n=EU_TIES.filter(x=>x[3]===r[3]).length;I.push({kind:"e",label:`${r[3]} · ${t("In Europe")}`,sub:`${t(r[4])} · ${tf(n===1?"1 tie":"{n} ties",{n})}`,lab:sn(r[3]),hay:sn(r[3]+" "+r[4]+" europe avrupa "+EU_TIES.filter(x=>x[3]===r[3]).map(x=>x[0]+" "+x[5]+" "+x[6]).join(" ")),act:{b:"football",tb:"europe",i:r[3]},b:"football"})});
   Object.keys(RECORDS).forEach(b=>I.push({kind:"t",label:`${t("Records")} · ${t(SPORTS[b].label)}`,sub:RECORDS[b].facts.slice(0,2).map(f=>t(f[1])).join(" · "),lab:sn("records"),hay:sn("records rekorlar "+RECORDS[b].facts.map(f=>f[0]+" "+f[1]+" "+f[2]).join(" ")),act:{b,tb:"records"},b}))});
 SKIND.e="In Europe";
+
+/* ---------- Everyone's predictions, match by match: hidden as –:– until the match is over ---------- */
+let lgM=null;
+/* a match counts as over once its result is in, or two hours after kick-off (three hours for an unknown time) */
+function lgOver(b,d,o,R){if(R[xKey(b,d,o)])return true;const L=LIVE[b],n=L&&L.next.find(x=>x[0]===d&&x[4]===o),[Y,M,D]=d.split("-").map(Number);
+  const [h,mi]=((n&&n[1])||"21:00").split(":").map(Number);return Date.now()>=Date.UTC(Y,M-1,D,h-3,mi)+2*36e5}
+function lgVenue(b,d,o){const L=LIVE[b];if(!L)return "H";const r=L.last.find(x=>x[0]===d&&x[3]===o);if(r)return r[2];const n=L.next.find(x=>x[0]===d&&x[4]===o);return n?n[3]:"H"}
+function lgMatches(){const all=xAllDocs("predictions",xPreds(),"p"),R=xResults(),M={};
+  Object.values(all).forEach(p=>Object.keys(p||{}).forEach(k=>{const [b,d,o]=k.split("|");if(!b||!d||!o||!SPORTS[b])return;(M[k]=M[k]||{k,b,d,o,n:0}).n++}));
+  const L=Object.values(M);L.forEach(m=>m.over=lgOver(m.b,m.d,m.o,R));
+  const past=L.filter(m=>m.over).sort((a,c)=>c.d.localeCompare(a.d)).slice(0,12),soon=L.filter(m=>!m.over).sort((a,c)=>a.d.localeCompare(c.d)).slice(0,8);return {past,soon}}
+function lgAllHtml(){const {past,soon}=lgMatches(),list=past.concat(soon);
+  if(!list.length)return `<span class="label">${t("Everyone's predictions")}</span><p class="fine">${t("Nobody has predicted a match yet.")}</p>`;
+  if(!lgM||!list.some(m=>m.k===lgM))lgM=(past[0]&&(!soon[0]||past[0].d>=lgCut())?past[0]:soon[0]||past[0]).k;
+  const m=list.find(x=>x.k===lgM),R=xResults(),res=R[m.k],hm=lgVenue(m.b,m.d,m.o)!=="A",all=xAllDocs("predictions",xPreds(),"p");
+  const opt=x=>`<option value="${esc(x.k)}" ${x.k===lgM?"selected":""}>${esc(mDate(x.d,true)+" · "+x.o+" · "+t(SPORTS[x.b].label))}</option>`;
+  const sel=`<select id="lgMSel" class="lgsel" aria-label="${esc(t("Match"))}">${past.length?`<optgroup label="${esc(t("Played"))}">${past.map(opt).join("")}</optgroup>`:""}${soon.length?`<optgroup label="${esc(t("Coming up"))}">${soon.map(opt).join("")}</optgroup>`:""}</select>`;
+  const sc=v=>hm?`${v[0]}–${v[1]}`:`${v[1]}–${v[0]}`;
+  const rows=Object.entries(all).filter(([,p])=>p&&p[m.k]).map(([id,p])=>({id,v:p[m.k],me:id===XC.me||id==="me",pts:res?xPoints(p[m.k],res):null}));
+  xNames(rows.map(r=>r.id).filter(i=>i!=="me"));
+  const nm=r=>r.me?t("You"):xName(r.id);
+  if(m.over)rows.sort((a,c)=>(c.pts??-1)-(a.pts??-1)||nm(a).localeCompare(nm(c)));else rows.sort((a,c)=>(c.me-a.me)||nm(a).localeCompare(nm(c)));
+  const head=`<p class="lgmhead"><b>${esc(hm?"Fenerbahçe":m.o)} – ${esc(hm?m.o:"Fenerbahçe")}</b><span class="muted">${m.over?(res?tf("Final score: {s}",{s:sc(res)}):t("Result not in yet")):t("Hidden until the final whistle")}</span></p>`;
+  const note=`<p class="fine">${m.over?"":(rows.length===1?t("1 fan has predicted this match. Predictions are revealed after the final whistle."):tf("{n} fans have predicted this match. Predictions are revealed after the final whistle.",{n:rows.length}))}</p>`;
+  const li=r=>{const show=m.over||r.me;return `<li class="${r.me?"me":""}"><span class="nm">${esc(nm(r))}</span><b class="lgsc${show?"":" hid"}" ${show?"":`aria-label="${esc(t("Hidden until the final whistle"))}"`}>${show?sc(r.v):"–:–"}</b>${r.pts!=null?`<span class="lgpt ${r.pts===3?"good":r.pts?"":"muted"}">${tf(r.pts===1?"1 pt":"{n} pts",{n:r.pts})}</span>`:"<span></span>"}</li>`};
+  return `<span class="label">${t("Everyone's predictions")}</span>${sel}${head}${rows.length?`<ul class="lgall">${rows.slice(0,40).map(li).join("")}</ul>`:`<p class="fine">${t("No predictions for this match yet.")}</p>`}${m.over?"":note}`}
+function lgAddAll(){const box=$("leagueBox"),g=box&&box.querySelector(".lggrid");if(!g)return;let c=g.querySelector(".lgallc");if(!c){c=document.createElement("article");c.className="card lgallc";g.appendChild(c)}
+  c.innerHTML=lgAllHtml();const s=c.querySelector("#lgMSel");if(s)s.onchange=()=>{lgM=s.value;lgAddAll();const n=$("lgMSel");if(n)n.focus()}}
+{const _fl=fillLeague;fillLeague=function(){_fl();lgAddAll()}}
 
 /* ===== Quiz with five levels. Questions are built from the facts already on this site (history, trophies,
    legends, records, league finishes, European ties, box scores and squads), so every answer can be checked on the page. ===== */
