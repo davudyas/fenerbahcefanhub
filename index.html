@@ -5066,7 +5066,7 @@ EXT.afterPanel.push(p=>{document.body.dataset.view=tab==="matches"?"matches":"ot
 /* ---------- Short intro: two lines of the description, the rest on request ---------- */
 let ledeOpen=false,ledeFor="";
 function paintFooter(){const w=document.querySelector("footer .wrap");if(!w)return;let a=$("aboutSite");if(!a){w.insertAdjacentHTML("afterbegin",`<p id="aboutSite" class="about"></p>`);a=$("aboutSite")}
-  a.textContent=t("About this site: results and tables are updated every Monday and Friday morning, so scores don't change live during a match. Made by a fan (D.Y).")}
+  a.textContent=t("About this site: results and tables are updated every Sunday, Monday and Thursday morning, so scores don't change live during a match. Made by a fan (D.Y).")}
 function fitLede(){paintFooter();const el=$("heroLede");if(!el)return;let b=$("ledeMore");
   let a=$("heroAsof");if(!a){el.insertAdjacentHTML("beforebegin",`<p class="asof" id="heroAsof"></p>`);a=$("heroAsof")}a.textContent=tf("Results and tables updated {d}",{d:mDate(ASOF_ISO)});
   if(ledeFor!==current){ledeFor=current;ledeOpen=false}
