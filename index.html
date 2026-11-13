@@ -1690,6 +1690,18 @@ html[dir="rtl"] .gztrack{direction:ltr}
 #mFindF{display:flex;gap:8px;margin-top:8px}#mFindF input{flex:1;min-width:0;padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit}
 @media (max-width:640px){.modwrap{display:none}}
 #modOpen svg{width:16px;height:16px;vertical-align:-3px}
+.modbox{width:min(920px,100%)}
+.mtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.mtools input,.mtools select{padding:8px 10px;border-radius:10px;border:1px solid var(--line-2);background:var(--card);color:var(--ink);font:inherit}
+.mtools input{flex:1;min-width:180px}
+.mstats{margin:0;font-size:14.5px}
+.mwhen{margin:0;font-size:13px}
+.mactw{border-top:1px solid var(--line);padding-top:8px}
+.mactw h4{margin:8px 0 4px;font-size:14px}
+.mact{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.mact li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;font-size:13.5px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.mact li>.muted:last-child{grid-column:1/-1;font-size:12.5px}
+.mact li b{font-variant-numeric:tabular-nums}
 </style>
 
 <header class="bar"><div class="wrap">
@@ -5999,13 +6011,14 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
   async function loadBans(){try{const {data}=await cl().rpc("banned_ids");const B=new Set((data||[]).map(r=>typeof r==="string"?r:r.banned_ids));window.FB_BANNED=B;
     let ch=false;Object.values(XC.docs).forEach(col=>B.forEach(id=>{if(col&&col[id]){delete col[id];ch=true}}));B.forEach(id=>{if(XC.names[id]){XC.names[id]="";ch=true}});if(ch)xRefresh()}catch(e){}}
   const SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>';
-  let tab="reports";
+  let tab="fans";const F={show:"reg",sort:"active",q:"",open:new Set(),list:null,partial:false};
   const nm=x=>x.name?esc(x.name):'<span class="muted">(no name)</span>';
   const badges=x=>`${x.registered?`<span class="mbadge">registered${x.username?" · "+esc(x.username):""}</span>`:`<span class="mbadge">guest</span>`}${x.banned?'<span class="mbadge bad">banned</span>':""}`;
   const acts=(x,dismiss)=>`<div class="btns"><button class="btn ghost sm" data-ma="name" data-id="${x.id||x.target}">Reset name</button><button class="btn ghost sm" data-ma="clear" data-id="${x.id||x.target}">Clear predictions &amp; scores</button>
     ${x.banned?`<button class="btn ghost sm" data-ma="unban" data-id="${x.id||x.target}">Unban</button>`:`<button class="btn ghost sm mdanger" data-ma="ban" data-id="${x.id||x.target}">Ban</button>`}${dismiss?`<button class="btn ghost sm" data-ma="dismiss" data-id="${x.target}" data-k="${esc(x.kind)}">Dismiss</button>`:""}</div>`;
   async function paint(){const body=$("modBody");if(!body)return;body.innerHTML='<p class="fine">Loading…</p>';
-    try{if(tab==="reports"){const {data,error}=await cl().rpc("admin_reports");if(error)throw error;
+    try{if(tab==="fans"){await paintFans(body);return}
+      if(tab==="reports"){const {data,error}=await cl().rpc("admin_reports");if(error)throw error;
         body.innerHTML=(data||[]).length?`<ul class="mlist">${data.map(x=>`<li><div class="mhead"><b>${nm(x)}</b>${badges(x)}<span class="muted">${x.kind==="message"?"message":"name"} · ${x.reporters} report${x.reporters===1?"":"s"} · ${esc(mDate(String(x.last).slice(0,10),true))}</span></div>
           ${(x.samples||[]).filter(Boolean).length?`<p class="msample">${x.samples.filter(Boolean).map(s=>"“"+esc(s)+"”").join("<br>")}</p>`:""}${x.target?acts(x,true):""}</li>`).join("")}</ul>`:'<p class="fine">No reports. All quiet.</p>'}
       else if(tab==="find"){body.innerHTML=`<form id="mFindF" class="lgform"><input id="mFind" placeholder="Fan name or username" aria-label="Fan name or username"><button class="btn sm" type="submit">Search</button></form><div id="mFound"></div>`;
@@ -6015,6 +6028,45 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
         body.innerHTML=(data||[]).length?`<ul class="mlist">${data.map(x=>`<li><div class="mhead"><b>${esc(x.name)}</b><span class="muted"><code>${esc(x.code)}</code> · ${x.members} member${x.members===1?"":"s"}${x.owner_name?" · made by "+esc(x.owner_name):""}</span></div>
           <div class="btns"><input class="mren" value="${esc(x.name)}" maxlength="30" aria-label="New league name"><button class="btn ghost sm" data-ma="lrename" data-id="${esc(x.code)}">Rename</button><button class="btn ghost sm mdanger" data-ma="ldel" data-id="${esc(x.code)}">Delete league</button></div></li>`).join("")}</ul>`:'<p class="fine">No private leagues yet.</p>'}
       wire()}catch(e){body.innerHTML='<p class="fine">Couldn\'t load this. Try again.</p>'}}
+  /* ---- Fans: everyone at a glance, with their activity ---- */
+  const when=d=>d?esc(mDate(String(d).slice(0,10),true)):"–";
+  async function loadFans(){let r=await cl().rpc("admin_users",{include_guests:F.show!=="reg"});F.partial=false;
+    if(r.error){/* until the database function exists, fall back to the newest 25 */const f=await cl().rpc("admin_find",{q:""});if(f.error)throw r.error;F.partial=true;
+      const D=k=>XC.docs[k]||{};r={data:(f.data||[]).map(x=>({...x,predictions:Object.keys((D("predictions")[x.id]||{}).p||{}).length,motm:Object.keys((D("motm")[x.id]||{}).v||{}).length,ratings:Object.keys((D("ratings")[x.id]||{}).r||{}).length,games:!!D("scores")[x.id],leagues:[],reports:0}))}}
+    F.list=r.data||[]}
+  function matchLabel(k){const [b,d,o]=k.split("|");const sp=SPORTS[b];return `${esc(mDate(d,true))} · ${esc(o||"")}${sp?` <span class="muted">· ${esc(t(sp.label))}</span>`:""}`}
+  async function activity(id){const {data,error}=await cl().from("docs").select("col,data,updated_at").eq("id",id);if(error)return '<p class="fine">Couldn\'t load their activity.</p>';
+    const by={};(data||[]).forEach(r=>by[r.col]=r.data||{});const R=xResults(),out=[];
+    const P=Object.entries(by.predictions&&by.predictions.p||{}).sort((a,b)=>b[0].split("|")[1].localeCompare(a[0].split("|")[1]));
+    if(P.length)out.push(`<h4>Predictions (${P.length})</h4><ul class="mact">${P.slice(0,30).map(([k,v])=>{const res=R[k],pts=res?xPoints(v,res):null,[bb,dd,oo]=k.split("|"),hm=typeof lgVenue!=="function"||lgVenue(bb,dd,oo)!=="A",sc=x=>hm?`${esc(x[0])}–${esc(x[1])}`:`${esc(x[1])}–${esc(x[0])}`;
+      return `<li><span>${matchLabel(k)} <span class="muted">(${hm?"home":"away"})</span></span><b>${sc(v)}</b><span class="muted">${res?`result ${sc(res)} · ${pts} pt${pts===1?"":"s"}`:"not played yet"}</span></li>`}).join("")}</ul>`);
+    const V=Object.entries(by.motm&&by.motm.v||{});if(V.length)out.push(`<h4>Man of the Match votes (${V.length})</h4><ul class="mact">${V.slice(-20).reverse().map(([k,v])=>`<li><span>${matchLabel(k)}</span><b>${esc(v)}</b></li>`).join("")}</ul>`);
+    const Ra=Object.entries(by.ratings&&by.ratings.r||{});if(Ra.length)out.push(`<h4>Player ratings (${Ra.length} matches)</h4><ul class="mact">${Ra.slice(-15).reverse().map(([k,v])=>`<li><span>${matchLabel(k)}</span><span class="muted">${esc(Object.entries(v||{}).map(([n,x])=>n+" "+x).join(", "))}</span></li>`).join("")}</ul>`);
+    const S=by.scores&&by.scores.s;if(S){const L=Object.fromEntries(BOARDS.map(b=>[b[0],b[1]]));const g=Object.entries(S).filter(([,v])=>typeof v==="number"&&v>0);
+      if(g.length)out.push(`<h4>Game bests</h4><ul class="mact">${g.map(([k,v])=>`<li><span>${esc(t(L[k]||k))}</span><b>${esc(v)}</b></li>`).join("")}</ul>`)}
+    const n=(o,f)=>o&&o[f]?Object.keys(o[f]).length:0;const extra=[n(by.challenges,"c")&&`${n(by.challenges,"c")} challenges played`,n(by.seasons,"b")&&`${n(by.seasons,"b")} season-game records`,n(by.watch,"w")&&`${n(by.watch,"w")} watch parties`].filter(Boolean);
+    if(extra.length)out.push(`<p class="fine">${extra.join(" · ")}</p>`);
+    return out.join("")||'<p class="fine">Nothing saved yet.</p>'}
+  async function paintFans(body,keep){if(!F.list||!keep)await loadFans();
+    const q=F.q.trim().toLowerCase();let L=F.list.filter(x=>F.show==="all"||(F.show==="reg"?x.registered:!x.registered)).filter(x=>!q||(x.name||"").toLowerCase().includes(q)||(x.username||"").includes(q));
+    const tim=x=>Date.parse(x.last_active||x.created_at||0)||0;
+    L.sort(F.sort==="new"?(a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at):F.sort==="pred"?(a,b)=>b.predictions-a.predictions:F.sort==="rep"?(a,b)=>b.reports-a.reports||tim(b)-tim(a):(a,b)=>tim(b)-tim(a));
+    const reg=F.list.filter(x=>x.registered).length;
+    body.innerHTML=`<div class="mtools"><input id="mQ" value="${esc(F.q)}" placeholder="Filter by name or username" aria-label="Filter fans">
+      <select id="mShow" aria-label="Show"><option value="reg">Registered fans</option><option value="guest">Guests</option><option value="all">Everyone</option></select>
+      <select id="mSort" aria-label="Sort"><option value="active">Last active</option><option value="new">Newest</option><option value="pred">Most predictions</option><option value="rep">Most reported</option></select></div>
+      <p class="fine">${L.length} shown${F.show!=="guest"?` · ${reg} registered`:""}${F.partial?" · showing the newest 25 for now (database update pending)":""}</p>
+      ${L.length?`<ul class="mlist mfans">${L.map(x=>`<li data-fan="${x.id}"><div class="mhead"><b>${nm(x)}</b>${badges(x)}${x.admin?'<span class="mbadge">admin</span>':""}${x.reports?`<span class="mbadge bad">${x.reports} report${x.reports===1?"":"s"}</span>`:""}</div>
+        <p class="mstats">${x.predictions} prediction${x.predictions===1?"":"s"} · ${x.motm} MOTM vote${x.motm===1?"":"s"} · ${x.ratings} rating${x.ratings===1?"":"s"}${x.games?" · plays the games":""}${(x.leagues||[]).length?` · leagues: ${x.leagues.map(esc).join(", ")}`:""}</p>
+        <p class="muted mwhen">Joined ${when(x.created_at)} · last active ${when(x.last_active)}${x.last_sign_in_at&&x.registered?` · last log-in ${when(x.last_sign_in_at)}`:""}</p>
+        <div class="btns"><button class="btn ghost sm" data-mx="${x.id}" aria-expanded="${F.open.has(x.id)}">${F.open.has(x.id)?"Hide activity":"Show activity"}</button></div><div class="mactw" id="act-${x.id}" ${F.open.has(x.id)?"":"hidden"}></div>${x.admin?"":acts(x,false)}</li>`).join("")}</ul>`:'<p class="fine">No fans match.</p>'}`;
+    $("mShow").value=F.show;$("mSort").value=F.sort;
+    $("mShow").onchange=()=>{F.show=$("mShow").value;paintFans(body)};$("mSort").onchange=()=>{F.sort=$("mSort").value;paintFans(body,true)};
+    let qt;$("mQ").oninput=()=>{clearTimeout(qt);qt=setTimeout(()=>{F.q=$("mQ").value;const pos=$("mQ").selectionStart;paintFans(body,true).then(()=>{const i=$("mQ");i.focus();i.setSelectionRange(pos,pos)})},200)};
+    body.querySelectorAll("[data-mx]").forEach(b=>b.onclick=async()=>{const id=b.dataset.mx,box=$("act-"+id);if(F.open.has(id)){F.open.delete(id);box.hidden=true;b.textContent="Show activity";b.setAttribute("aria-expanded","false");return}
+      F.open.add(id);box.hidden=false;b.textContent="Hide activity";b.setAttribute("aria-expanded","true");box.innerHTML='<p class="fine">Loading…</p>';box.innerHTML=await activity(id)});
+    for(const id of F.open){const box=$("act-"+id);if(box)activity(id).then(h=>{box.innerHTML=h})}
+    wire()}
   const RPC={name:id=>["admin_reset_name",{target:id}],clear:id=>["admin_clear_data",{target:id}],ban:id=>["admin_ban",{target:id,why:null}],unban:id=>["admin_unban",{target:id}],ldel:id=>["admin_delete_league",{c:id}]};
   const DONE={name:"Name reset.",clear:"Predictions and scores cleared.",ban:"Fan banned. They can't save anything any more and show as “A fan”.",unban:"Ban lifted.",dismiss:"Report dismissed.",ldel:"League deleted.",lrename:"League renamed."};
   function wire(){document.querySelectorAll("#modBody [data-ma]").forEach(b=>b.onclick=async()=>{const a=b.dataset.ma,id=b.dataset.id;
@@ -6025,10 +6077,10 @@ function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buil
     else{const [f,args]=RPC[a](id);r=await cl().rpc(f,args)}
     if(r.error){b.disabled=false;xToast("That didn't work: "+r.error.message);return}
     xToast(DONE[a]);if(a==="name"||a==="ban"){XC.names[id]="";if(window.RT&&RT.names)RT.names[id]=""}if(a==="clear"||a==="ban")Object.values(XC.docs).forEach(c=>{if(c)delete c[id]});
-    await loadBans();xRefresh();const mb=document.querySelector("#modDlg .modbox");if(mb)mb.focus();if(tab==="find"&&$("mFindF"))$("mFindF").requestSubmit();else paint()})}
+    await loadBans();xRefresh();const mb=document.querySelector("#modDlg .modbox");if(mb)mb.focus();if(tab==="fans"){const body=$("modBody");await loadFans();paintFans(body,true)}else paint()})}
   function open(){let d=$("modDlg");if(!d){d=document.createElement("div");d.id="modDlg";d.className="moddlg";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-labelledby","modT");
       d.innerHTML=`<div class="modbox" tabindex="-1"><div class="modtop"><h2 id="modT">Moderation</h2><button class="btn ghost sm" type="button" id="modX" aria-label="Close">✕</button></div>
-        <div class="seg" role="tablist"><button type="button" role="tab" data-mt="reports">Reports</button><button type="button" role="tab" data-mt="find">Find a fan</button><button type="button" role="tab" data-mt="leagues">Leagues</button></div>
+        <div class="seg" role="tablist"><button type="button" role="tab" data-mt="fans">Fans</button><button type="button" role="tab" data-mt="reports">Reports</button><button type="button" role="tab" data-mt="leagues">Leagues</button></div>
         <p class="fine">Only you can see this. Reset name: their name goes back to “A fan”. Clear: deletes their predictions, votes and scores. Ban: they can't save names, predictions or scores and don't appear on leaderboards; it also takes them out of all leagues.</p><div id="modBody"></div></div>`;
       document.body.appendChild(d);$("modX").onclick=close;d.addEventListener("click",e=>{if(e.target===d)close()});document.addEventListener("keydown",e=>{const m=$("modDlg");if(e.key==="Escape"&&m&&!m.hidden)close()});
       d.querySelectorAll("[data-mt]").forEach(b=>b.onclick=()=>{tab=b.dataset.mt;mark();paint()})}
