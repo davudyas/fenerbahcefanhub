@@ -698,9 +698,9 @@ html[data-theme="day"] .otd,html[data-theme="retro"] .otd{background:rgba(255,20
 html[data-theme="canary"] .otd{background:rgba(13,28,61,.06);border-color:rgba(13,28,61,.25)}
 @media (max-width:560px){.brand b{font-size:21px}.brand svg{width:30px;height:30px}.themepick select{width:50px}.langpick select{width:72px}.langpick .lc{gap:4px;font-size:15px}}
 /* Arabic: a font with Arabic glyphs, no letter-spacing (it breaks joined letters), no uppercase transforms */
-html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] select,html[lang="ar"] input{font-family:"Cairo","Barlow",system-ui,sans-serif}
-html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3,html[lang="ar"] .eyebrow,html[lang="ar"] .tab,html[lang="ar"] .btn{font-family:"Cairo","Barlow Condensed",system-ui,sans-serif}
-html[lang="ar"] *{letter-spacing:0!important}
+html:is([lang="ar"],[lang="fa"]) body,html:is([lang="ar"],[lang="fa"]) button,html:is([lang="ar"],[lang="fa"]) select,html:is([lang="ar"],[lang="fa"]) input{font-family:"Cairo","Barlow",system-ui,sans-serif}
+html:is([lang="ar"],[lang="fa"]) h1,html:is([lang="ar"],[lang="fa"]) h2,html:is([lang="ar"],[lang="fa"]) h3,html:is([lang="ar"],[lang="fa"]) .eyebrow,html:is([lang="ar"],[lang="fa"]) .tab,html:is([lang="ar"],[lang="fa"]) .btn{font-family:"Cairo","Barlow Condensed",system-ui,sans-serif}
+html:is([lang="ar"],[lang="fa"]) *{letter-spacing:0!important}
 html[dir="rtl"] .langpick select,html[dir="rtl"] .themepick select{text-align:right}
 /* player of the match: free choice */
 .commcard .prow input{background:var(--navy-2);border:1.5px solid var(--line-2);border-radius:10px;padding:10px 12px;color:var(--ink);min-width:0;flex:1 1 160px;font:inherit}
@@ -782,6 +782,8 @@ html[data-theme="sunset"] .card,html[data-theme="sunset"] .box,html[data-theme="
 html[data-theme="sunset"] .otd{background:rgba(255,160,40,.14);border-color:rgba(200,110,20,.35)}html[data-theme="sky"] .otd{background:rgba(255,212,0,.14);border-color:rgba(200,150,0,.35)}
 html[data-theme="sunset"]{--c1:#a85a00;--c2:#1f5fbf;--c3:#9b2f6a;--c4:#1a7f63}
 html[data-theme="sky"]{--c1:#a87e00;--c2:#1660b8;--c3:#c4511d;--c4:#1a8f72}
+html[lang="ru"] body,html[lang="ru"] button,html[lang="ru"] select,html[lang="ru"] input{font-family:"Roboto","Barlow",system-ui,sans-serif}
+html[lang="ru"] h1,html[lang="ru"] h2,html[lang="ru"] h3,html[lang="ru"] .eyebrow,html[lang="ru"] .tab,html[lang="ru"] .btn{font-family:"Oswald","Barlow Condensed",system-ui,sans-serif}
 
 /* ===== look & feel ===== */
 :root{--c1:#b88d00;--c2:#4f8fe6;--c3:#d0632f;--c4:#23977a;--br:#ffe500}
@@ -1150,7 +1152,7 @@ html[data-ts="1"] body{zoom:1.12}html[data-ts="2"] body{zoom:1.25}
   .eut td:nth-child(5){grid-area:res;justify-self:end;text-align:end;align-self:end}
 }
 .tour{font-family:var(--f-body);color:var(--ink);line-height:1.5}
-html[lang="ar"] .tour{font-family:"Cairo","Barlow",system-ui,sans-serif}
+html:is([lang="ar"],[lang="fa"]) .tour{font-family:"Cairo","Barlow",system-ui,sans-serif}
 @media (max-width:560px){
   .select-wrap select{font-size:15px;letter-spacing:.03em;padding:11px 38px 11px 16px}
   .pgroups{display:grid;grid-template-columns:1fr 1fr;gap:4px}
@@ -2089,7 +2091,7 @@ const BR_NAMES=["Athletics","Rowing","Sailing","Table tennis","Boxing","Wheelcha
 const MEM_PAIRS=[["Ramil Guliyev","Athletics"],["Tonguç Türsan","Rowing"],["Tuğçe Subaşı","Sailing"],["Melis Budak","Table tennis"],["9 world golds","Boxing"],["EuroCup 1 · 2024","Wheelchair basketball"],["League of Legends","Esports"],["Champions 2025–26","Women's football"],["33 women's titles","Swimming"],["Challenge Cup 2014","Men's volleyball"],["Sabiha Gürayman","Women's volleyball"],["Alex de Souza","Football"]];
 
 /* Season snapshot, researched 6 November 2026; fixtures checked against fenerbahce.org on 11 November 2026. r: [date, comp, H/A/N, opponent, fbScore, oppScore, note?]  n: [date, time|"", comp, H/A, opponent] */
-const ASOF="13 November 2026",ASOF_ISO="2026-11-13";
+const ASOF="15 November 2026",ASOF_ISO="2026-11-15";
 const LIVE={
 football:{
   sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["Sporx fixtures","https://www.sporx.com/fenerbahce-fiksturu-ve-mac-sonuclari"],["Goal.com table","https://www.goal.com/tr/ligler/super-lig/puan-durumu/482ofyysbdbeoxauk19yg7tdt"],["Sporx: Arca Çorum 0–5 Fenerbahçe","https://www.sporx.com/arca-corum-fenerbahce-maci-canli-5904799"],["SoccerNews top scorers","https://www.soccernews.com/soccer-stats/turkish-super-lig/top-scorers-assists/2026-27/"],["UCL league phase","https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Champions_League_league_phase"]],
@@ -2139,7 +2141,7 @@ football:{
 basketball:{
   sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["Sportschau: Paris 111–109 Fenerbahçe and EuroLeague table","https://www.sportschau.de/live-und-ergebnisse/basketball/euroleague-basketball/ma12385871/paris-basketball_fenerbahce/blitztabelle"],["Fener.org: Paris 111–109 Fenerbahçe","https://www.fener.org/index.php/2026/11/12/paris-basketball-111-109-fenerbahce-tarfin/"],["beIN Sports: Bursaspor 59–78 Fenerbahçe","https://beinsports.com.tr/lig/basketbol-super-ligi"],["beIN Sports BSL","https://beinsports.com.tr/lig/basketbol-super-ligi"],["BetExplorer fixtures","https://www.betexplorer.com/basketball/team/fenerbahce/rDhoZR1l/"],["Fanatik","https://www.fanatik.com.tr/takim/fenerbahce/basketbol/fikstur/"]],
   season:"2026-27",
-  summary:[["7th","EuroLeague · 7–4"],["3rd","BSL · 5–2"],["1","Trophy won this autumn"]],
+  summary:[["7th","EuroLeague · 7–4"],["5th","BSL · 5–2"],["1","Trophy won this autumn"]],
   last:[
     ["2026-11-11","EuroLeague","A","Paris Basketball",109,111,"Round 11 · after overtime"],
     ["2026-11-07","BSL","A","Bursaspor",78,59,"Week 7"],
@@ -2176,11 +2178,11 @@ basketball:{
     ["2026-12-20", "15:30", "BSL", "H", "Türk Telekom"]],
   timeNote:"Tip-off times are Turkey time.",
   tables:[
-    {comp:"EuroLeague",sub:"Regular season after round 11 · three games still to play",cols:["P","W","L","+/−"],key:1,
+    {comp:"EuroLeague",sub:"Regular season after round 11",cols:["P","W","L","+/−"],key:1,
      zones:[[1,6,"Playoffs"],[7,10,"Play-in"],[11,20,"Out"]],
-     rows:[["Panathinaikos",10,8,2,"+86"],["Valencia Basket",11,8,3,"+87"],["Olympiacos",11,8,3,"+75"],["Barcelona",10,7,3,"+28"],["Real Madrid",11,7,4,"+95"],["Crvena Zvezda",11,7,4,"+64"],["Fenerbahçe",11,7,4,"+47"],["Zalgiris Kaunas",11,7,4,"+36"],["Dubai Basketball",11,7,4,"+10"],["Hapoel Tel Aviv",11,6,5,"+35"],["Partizan",11,6,5,"+16"],["Paris Basketball",11,5,6,"−34"],["Anadolu Efes",10,4,6,"−29"],["Beşiktaş",10,4,6,"−32"],["Virtus Bologna",10,4,6,"−39"],["ASVEL",10,4,6,"−47"],["Maccabi Tel Aviv",11,3,8,"−86"],["Bayern München",11,3,8,"−92"],["Olimpia Milano",11,1,10,"−88"],["Baskonia",11,1,10,"−132"]]},
-    {comp:"Basketbol Süper Ligi",sub:"After week 7 · Karşıyaka v Beşiktaş still to play · 2 points for a win, 1 for a loss",cols:["P","W","L","Pts"],key:3,
-     rows:[["Türk Telekom",7,6,1,13],["Bahçeşehir Koleji",7,6,1,13],["Fenerbahçe",7,5,2,12],["Anadolu Efes",7,5,2,12],["Galatasaray",7,4,3,11],["Aliağa Petkimspor",7,4,3,11],["Trabzonspor",7,4,3,11],["Esenler Erokspor",7,4,3,11],["TOFAŞ",7,3,4,10],["Karşıyaka",6,3,3,9],["Beşiktaş",6,3,3,9],["Biotekno Körfez",7,2,5,9],["Bandırma Bordo",7,2,5,9],["Glint Çayırova",7,2,5,9],["Yukatel Denizli",7,1,6,8],["Bursaspor",7,1,6,8]]},
+     rows:[["Valencia Basket",11,8,3,"+87"],["Panathinaikos",11,8,3,"+84"],["Olympiacos",11,8,3,"+75"],["Barcelona",11,8,3,"+30"],["Real Madrid",11,7,4,"+95"],["Crvena Zvezda",11,7,4,"+64"],["Fenerbahçe",11,7,4,"+47"],["Zalgiris Kaunas",11,7,4,"+36"],["Dubai Basketball",11,7,4,"+10"],["Hapoel Tel Aviv",11,6,5,"+35"],["Partizan",11,6,5,"+16"],["Anadolu Efes",11,5,6,"−17"],["Beşiktaş",11,5,6,"−28"],["Paris Basketball",11,5,6,"−34"],["ASVEL",11,4,7,"−51"],["Virtus Bologna",11,4,7,"−51"],["Maccabi Tel Aviv",11,3,8,"−86"],["Bayern München",11,3,8,"−92"],["Olimpia Milano",11,1,10,"−88"],["Baskonia",11,1,10,"−132"]]},
+    {comp:"Basketbol Süper Ligi",sub:"Week 8 under way: four games, including Fenerbahçe v Anadolu Efes, still to play · 2 points for a win, 1 for a loss",cols:["P","W","L","Pts"],key:3,
+     rows:[["Türk Telekom",8,6,2,14],["Bahçeşehir Koleji",7,6,1,13],["Aliağa Petkimspor",8,5,3,13],["Galatasaray",8,4,4,12],["Fenerbahçe",7,5,2,12],["Anadolu Efes",7,5,2,12],["TOFAŞ",8,4,4,12],["Trabzonspor",8,4,4,12],["Karşıyaka",8,4,4,12],["Esenler Erokspor",7,4,3,11],["Bandırma Bordo",8,3,5,11],["Biotekno Körfez",8,3,5,11],["Beşiktaş",7,3,4,10],["Glint Çayırova",7,2,5,9],["Yukatel Denizli",7,1,6,8],["Bursaspor",7,1,6,8]]},
     {comp:"Turkish Cup",sub:"Played in February",note:"Top teams at the halfway point of the BSL qualify."}]},
 "womens-basketball":{
   sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["FIBA week 4 recap","https://www.fiba.basketball/en/news/recap-week-4-elw-2026-27"],["BetExplorer (Carolo)","https://www.betexplorer.com/basketball/team/flammes-carolo/n7U7tQWu/"],["NTV Spor","https://www.ntvspor.net/basketbol/fenerbahce-tarfin-euroleauge-womenda-3te-3-yapti-432060"],["Sporx","https://www.sporx.com/basketbol/tkbl/fenerbahce-tarfin-den-27-sayilik-galibiyet-SXHBQ1180451SXQ"],["Akşam: Botaş 60–88 Fenerbahçe","https://aksam.com.tr/spor/fenerbahc-tarfin-deplasmanda-farkli-kazandi/haber-1712676"]],
@@ -2239,10 +2241,11 @@ volleyball:{
     {comp:"CEV Champions League",sub:"Pool C",cols:["P","W","L","Pts"],key:3,note:"Pool phase starts on 24 November.",
      rows:[["Fenerbahçe",0,0,0,0],["Numia Vero Volley Milano",0,0,0,0],["Levallois Paris Saint Cloud",0,0,0,0],["Vasas Óbuda Budapest",0,0,0,0]]}]},
 "womens-football":{
-  sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["TFF league table and fixtures","https://www.tff.org/default.aspx?pageID=1000"],["Sabah: Fenerbahçe 1–0 Galatasaray","https://www.sabah.com.tr/spor/futbol/2026/11/07/kadinlar-derbisinde-kazanan-fenerbahce"],["TFF week 10 results","https://www.tff.org/default.aspx?pageID=1000"],["UEFA: Europa Cup round of 16, first legs","https://www.uefa.com/womenseuropacup/news/02aa-21f01f2a8bf1-9b2b3eabfb57-1000--women-s-europa-cup-round-of-16-first-legs-round-up-wolfs/"],["beIN Sports: Fenerbahçe 0–2 Real Sociedad","https://beinsports.com.tr/haber/fenerbahce-arsavev-real-sociedad-engelini-asamadi"]],
+  sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["TFF league table and fixtures","https://www.tff.org/default.aspx?pageID=1000"],["TFF week 11 results and table","https://www.tff.org/Default.aspx?hafta=11&pageID=1000"],["Fener.org: Bakırköy 0–4 Fenerbahçe","https://www.fener.org/index.php/2026/11/14/bakirkoy-kadin-futbol-spor-kulubu-0-4-fenerbahce-arsavev/"],["Sabah: Fenerbahçe 1–0 Galatasaray","https://www.sabah.com.tr/spor/futbol/2026/11/07/kadinlar-derbisinde-kazanan-fenerbahce"],["TFF week 10 results","https://www.tff.org/default.aspx?pageID=1000"],["UEFA: Europa Cup round of 16, first legs","https://www.uefa.com/womenseuropacup/news/02aa-21f01f2a8bf1-9b2b3eabfb57-1000--women-s-europa-cup-round-of-16-first-legs-round-up-wolfs/"],["beIN Sports: Fenerbahçe 0–2 Real Sociedad","https://beinsports.com.tr/haber/fenerbahce-arsavev-real-sociedad-engelini-asamadi"]],
   season:"2026-27",label:"Women's Football",
-  summary:[["3rd","Women's Super League"],["7–1–0","Won, drawn, lost"],["35–1","Goals for and against"]],
+  summary:[["1st","Women's Super League"],["8–1–0","Won, drawn, lost"],["39–1","Goals for and against"]],
   last:[
+    ["2026-11-14","Women's Super League","A","Bakırköy",4,0,"Week 11 · Maria Alves 18', 73', own goal 57', Cansu Gürel 81'"],
     ["2026-11-11","Women's Europa Cup","H","Real Sociedad",0,2,"Round of 16, second leg · out, 0–4 on aggregate"],
     ["2026-11-07","Women's Super League","H","Galatasaray",1,0,"Week 10 · Ece Türkoğlu 89'"],
     ["2026-10-28","Women's Europa Cup","A","Real Sociedad",0,2,"Round of 16, first leg"],
@@ -2257,7 +2260,6 @@ volleyball:{
     ["","Women's Super League","H","Ankara BB Fomget",2,0,"Week 1"],
     ["2026-08-08","Women's Champions League","A","OH Leuven",1,1,"Second qualifying round · lost 2–4 on penalties"]],
   next:[
-    ["2026-11-14", "14:00", "Women's Super League", "A", "Bakırköy", "Week 11"],
     ["2026-11-18", "14:00", "Women's Super League", "H", "Ünye", "Week 5, postponed"],
     ["2026-12-09", "14:00", "Women's Super League", "H", "Hakkarigücü", "Week 12"],
     ["2026-12-13", "14:00", "Women's Super League", "A", "Trabzonspor", "Week 13"],
@@ -2267,22 +2269,22 @@ volleyball:{
     ["2027-01-24", "14:00", "Women's Super League", "A", "Şile Bilgidoğa", "Week 18"]],
   timeNote:"Women's football. The postponed week 5 home game is on 18 November; week 8 is still to be scheduled. Times are Turkey time.",
   tables:[
-    {comp:"Women's Super League",sub:"After week 10 · Fenerbahçe have two games in hand",cols:["P","W","D","L","GF","GA","GD","Pts"],key:7,
-     rows:[["Beşiktaş",10,7,2,1,22,6,"+16",23],["Ankara BB Fomget",10,7,1,2,51,9,"+42",22],["Fenerbahçe",8,7,1,0,35,1,"+34",22],["Trabzonspor",10,6,4,0,28,4,"+24",22],["Galatasaray",10,6,3,1,46,5,"+41",21],["Hakkarigücü",10,5,4,1,14,5,"+9",19],["Yüksekova",10,4,5,1,24,5,"+19",17],["Kayseri",9,4,3,2,19,12,"+7",15],["Amed",10,4,0,6,16,15,"+1",12],["Sultanbeyli Gücü",10,3,1,6,18,29,"−11",10],["Haymana",10,2,3,5,23,25,"−2",9],["Ünye",9,2,3,4,11,14,"−3",9],["Antalyaspor",10,2,3,5,13,26,"−13",9],["Bakırköy",10,1,1,8,11,26,"−15",1],["Şile Bilgidoğa",10,1,0,9,6,80,"−74",0],["Giresun Sanayispor",10,0,0,10,1,76,"−75",0]],
+    {comp:"Women's Super League",sub:"After week 11 · Trabzonspor v Yüksekova still to play · Fenerbahçe have two games in hand",cols:["P","W","D","L","GF","GA","GD","Pts"],key:7,
+     rows:[["Fenerbahçe",9,8,1,0,39,1,"+38",25],["Galatasaray",11,7,3,1,50,6,"+44",24],["Beşiktaş",11,7,3,1,23,7,"+16",24],["Ankara BB Fomget",11,7,2,2,52,10,"+42",23],["Trabzonspor",10,6,4,0,28,4,"+24",22],["Hakkarigücü",11,6,4,1,19,6,"+13",22],["Yüksekova",10,4,5,1,24,5,"+19",17],["Kayseri",10,4,3,3,20,16,"+4",15],["Amed",11,4,1,6,17,16,"+1",13],["Sultanbeyli Gücü",11,4,1,6,22,29,"−7",13],["Ünye",10,3,3,4,15,14,"+1",12],["Haymana",11,2,4,5,24,26,"−2",10],["Antalyaspor",11,2,3,6,13,30,"−17",9],["Bakırköy",11,1,1,9,11,30,"−19",1],["Şile Bilgidoğa",11,1,0,10,6,84,"−78",0],["Giresun Sanayispor",11,0,0,11,2,81,"−79",0]],
      note:"Bakırköy and Şile Bilgidoğa had 3 points deducted."},
     {comp:"Women's Europa Cup",sub:"Round of 16",note:"Out: Real Sociedad won both legs 2–0 (4–0 on aggregate)."}]},
 "mens-volleyball":{
-  sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["TVF: Efeler Ligi week 5","https://tvf.org.tr/icerik/sms-grup-efeler-liginde-5hafta-sona-erdi-1"],["Fener.org: Fenerbahçe 3–1 Gebze","https://www.fener.org/index.php/2026/11/07/fenerbahce-medicana-3-1-gebze-belediyespor/"],["Voleybol Aktüel (week 4)","https://voleybolaktuel.com/sms-grup-efeler-liginde-4hafta-sona-erdi"],["Fanatik (week 3)","https://www.fanatik.com.tr/voleybol/efeler-liginde-3uncu-hafta-maclari-tamamlandi-2642571"],["Fanatik (week 2 fixtures)","https://www.fanatik.com.tr/voleybol/efeler-liginde-ikinci-hafta-basliyor-2642147"],["Fener.org: İBB 1–3 Fenerbahçe","https://www.fener.org/index.php/2026/10/31/ibb-spor-kulubu-1-3-fenerbahce-medicana/"]],
+  sources:[["fenerbahce.org fixtures","https://www.fenerbahce.org/fikstur"],["TVF: Efeler Ligi week 6","https://tvf.org.tr/icerik/sms-grup-efeler-liginde-6hafta-sona-erdi-1"],["Voleybol Aktüel: Galatasaray 2–3 Fenerbahçe","https://www.voleybolaktuel.com/derbide-galatasaray-2-0-one-gecti-maci-fenerbahce-3-2-kazandi"],["TVF: Efeler Ligi week 5","https://tvf.org.tr/icerik/sms-grup-efeler-liginde-5hafta-sona-erdi-1"],["Fener.org: Fenerbahçe 3–1 Gebze","https://www.fener.org/index.php/2026/11/07/fenerbahce-medicana-3-1-gebze-belediyespor/"],["Voleybol Aktüel (week 4)","https://voleybolaktuel.com/sms-grup-efeler-liginde-4hafta-sona-erdi"],["Fanatik (week 3)","https://www.fanatik.com.tr/voleybol/efeler-liginde-3uncu-hafta-maclari-tamamlandi-2642571"],["Fanatik (week 2 fixtures)","https://www.fanatik.com.tr/voleybol/efeler-liginde-ikinci-hafta-basliyor-2642147"],["Fener.org: İBB 1–3 Fenerbahçe","https://www.fener.org/index.php/2026/10/31/ibb-spor-kulubu-1-3-fenerbahce-medicana/"]],
   season:"2026-27",label:"Men's Volleyball",
-  summary:[["5th","Efeler Ligi"],["4–1","Won and lost"],["11","Points"]],
+  summary:[["3rd","Efeler Ligi"],["5–1","Won and lost"],["13","Points"]],
   last:[
+    ["2026-11-14","Efeler Ligi","A","Galatasaray",3,2,"Week 6 · 21-25, 19-25, 25-23, 25-18, 15-13"],
     ["2026-11-07","Efeler Ligi","H","Gebze Belediyespor",3,1,"Week 5 · 25-21, 24-26, 25-23, 25-18"],
     ["2026-10-31","Efeler Ligi","A","İBB Spor Kulübü",3,1,"Week 4 · 21-25, 25-18, 25-21, 25-15"],
     ["","Efeler Ligi","H","Alanya Belediyespor",3,0,"Week 3 · 25-23, 25-20, 25-18"],
     ["2026-10-24","Efeler Ligi","A","Gaziantep Gençlik Spor",3,2,"Week 2"],
     ["","Efeler Ligi","H","Ziraat Bankkart",0,3,"Week 1"]],
   next:[
-    ["2026-11-14", "19:00", "Efeler Ligi", "A", "Galatasaray"],
     ["2026-11-21", "19:00", "Efeler Ligi", "H", "Spor Toto"],
     ["2026-11-28", "16:00", "Efeler Ligi", "A", "Halkbank"],
     ["2026-12-05", "16:00", "Efeler Ligi", "H", "Akedaş Onikişubat"],
@@ -2292,8 +2294,8 @@ volleyball:{
     ["2026-12-26", "16:00", "Efeler Ligi", "A", "Altekma"]],
   timeNote:"Men's volleyball. Times are Turkey time.",
   tables:[
-    {comp:"Efeler Ligi",sub:"After week 5",cols:["P","W","L","Pts"],key:3,
-     rows:[["Halkbank",5,5,0,14],["Ziraat Bankkart",5,5,0,13],["Gebze Belediyespor",5,4,1,12],["Galatasaray",5,4,1,12],["Fenerbahçe",5,4,1,11],["Altekma",5,3,2,8],["Alanya Belediyespor",5,2,3,8],["Spor Toto",5,2,3,8],["İBB Spor Kulübü",5,2,3,6],["Akedaş Onikişubat",5,1,4,3],["Gaziantep Gençlik Spor",4,1,3,3],["İstanbul Gençlik",4,1,3,2],["Sungurlu Belediyespor",5,0,5,0],["Sultanbeyli Belediye Spor",5,0,5,-1]],
+    {comp:"Efeler Ligi",sub:"After week 6",cols:["P","W","L","Pts"],key:3,
+     rows:[["Halkbank",6,6,0,17],["Ziraat Bankkart",6,6,0,16],["Fenerbahçe",6,5,1,13],["Galatasaray",6,4,2,13],["Gebze Belediyespor",6,4,2,12],["Alanya Belediyespor",6,3,3,11],["Spor Toto",6,3,3,11],["İBB Spor Kulübü",6,3,3,9],["Altekma",6,3,3,8],["Akedaş Onikişubat",6,2,4,5],["Gaziantep Gençlik Spor",5,1,4,3],["İstanbul Gençlik",5,1,4,2],["Sungurlu Belediyespor",6,0,6,1],["Sultanbeyli Belediye Spor",6,0,6,-1]],
      note:"Sultanbeyli Belediye Spor had points deducted after a forfeit."}]}
 };
 
@@ -2505,7 +2507,7 @@ function tableCard(T,i){const t=T,head=`<header><h3>${esc(tt(t.comp))}</h3><span
   const fbi=t.rows.findIndex(r=>r[0]==="Fenerbahçe"),fbPos=fbi>=0?ranks[fbi]:null;
   return `<article class="tcard card" id="tb-${i}">${head}${fbPos&&t.rows.some(r=>+r[1]>0)?`<div class="tpos"><b>${ordL(fbPos)}</b><span>${tf("of {n}",{n:t.rows.length})}</span></div>`:""}
    <div class="tscroll"><table class="stand"><thead><tr><th class="pos">#</th><th class="tm">${tt("Team")}</th>${t.cols.map((c,j)=>`<th${hide(c)}${j===t.key?' class="kc"':""} title="${esc(tt("colt:"+c))}">${esc(tt("col:"+c))}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>${legend}${t.note?`<p class="tnote">${esc(tt(t.note))}</p>`:""}</article>`}
-function ordL(n){return LANG==="en"?n+ordSfx(n):LANG==="es"?n+".º":LANG==="fr"?n+(n===1?"er":"e"):LANG==="ar"?String(n):n+"."}
+function ordL(n){return LANG==="en"?n+ordSfx(n):LANG==="es"?n+".º":LANG==="fr"?n+(n===1?"er":"e"):RTL_LANGS.includes(LANG)?String(n):n+"."}
 function ordSfx(n){const s=["th","st","nd","rd"],v=n%100;return s[(v-20)%10]||s[v]||s[0]}
 
 /* ---------- FAN GAMES ---------- */
@@ -3512,7 +3514,7 @@ const THEMES=[["light","Light","#eef1f6","#0d1c3d"],["night","Kadıköy Night","
 /* Matchday is the default design (v28). Anyone still on the old default (Light) moves to it once; a design someone picked themselves is kept */
 let THEME=(()=>{try{const v=localStorage.getItem("fb-theme");if(localStorage.getItem("fb-look")!=="28"){localStorage.setItem("fb-look","28");if(!v||v==="light"){localStorage.setItem("fb-theme","day");return "day"}}
   if(THEMES.some(x=>x[0]===v))return v}catch(e){}return "day"})();
-const FONT_EXTRA={retro:"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap",ar:"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"};
+const FONT_EXTRA={retro:"https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap",ar:"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"};FONT_EXTRA.fa=FONT_EXTRA.ar;FONT_EXTRA.ru="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap";
 function applyTheme(v){THEME=v;if(v==="retro"&&window.loadFont)loadFont(FONT_EXTRA.retro);document.documentElement.dataset.theme=v;try{localStorage.setItem("fb-theme",v)}catch(e){}const T=THEMES.find(x=>x[0]===v);const sw=document.getElementById("themeSw");if(sw){sw.style.background=`linear-gradient(135deg,${T[2]} 50%,${T[3]} 50%)`;sw.style.boxShadow="0 0 0 1.5px var(--line-2)"}
   const s=document.getElementById("theme");if(s)s.value=v;if(tab==="play"&&playSel[current]==="penalties"&&typeof drawWheel==="function")drawWheel(document.getElementById("wheel"))}
 function initTheme(){const s=document.getElementById("theme");s.innerHTML=THEMES.map(([k,n])=>`<option value="${k}">${esc(t(n))}</option>`).join("");s.onchange=e=>applyTheme(e.target.value);applyTheme(THEME)}
@@ -5698,12 +5700,13 @@ null,null,null
 ];
 
 /* ================= LANGUAGES ================= */
-const LANGS=[["en","English","EN","en-GB"],["tr","Türkçe","TR","tr-TR"],["de","Deutsch","DE","de-DE"],["es","Español","ES","es-ES"],["fr","Français","FR","fr-FR"],["ar","العربية","AR","ar-u-nu-latn"]];
+const LANGS=[["en","English","EN","en-GB"],["tr","Türkçe","TR","tr-TR"],["de","Deutsch","DE","de-DE"],["es","Español","ES","es-ES"],["fr","Français","FR","fr-FR"],["it","Italiano","IT","it-IT"],["pt","Português","PT","pt-BR"],["nl","Nederlands","NL","nl-NL"],["pl","Polski","PL","pl-PL"],["ru","Русский","RU","ru-RU"],["az","Azərbaycanca","AZ","az-Latn-AZ"],["bs","Bosanski / Hrvatski / Srpski","BHS","bs-Latn-BA"],["sq","Shqip","SQ","sq-AL"],["ar","العربية","AR","ar-u-nu-latn"],["fa","فارسی","FA","fa-IR-u-ca-gregory-nu-latn"]];
+const RTL_LANGS=["ar","fa"];
 let LANG=(()=>{try{const v=localStorage.getItem("fb-lang");if(LANGS.some(l=>l[0]===v))return v}catch(e){}return "en"})();
 const LOC=()=>LANGS.find(l=>l[0]===LANG)[3];
 const EN_NS={"res:W":"W","res:D":"D","res:L":"L","ha:H":"H","ha:A":"A","ha:N":"N","col:P":"P","col:W":"W","col:D":"D","col:L":"L","col:GF":"GF","col:GA":"GA","col:GD":"GD","col:Pts":"Pts","col:+/−":"+/−","col:PF":"PF","col:PA":"PA","col:Sets":"Sets",
  "colt:P":"Played","colt:W":"Won","colt:D":"Drawn","colt:L":"Lost","colt:GF":"Goals for","colt:GA":"Goals against","colt:GD":"Goal difference","colt:Pts":"Points","colt:+/−":"Points difference","colt:PF":"Points for","colt:PA":"Points against","colt:Sets":"Sets won–lost"};
-const XLANGS=["es","fr","ar"],DICT={tr:{},de:{},es:{},fr:{},ar:{}},LOWER={tr:{},de:{},es:{},fr:{},ar:{}},PATTERNS={tr:[],de:[],es:[],fr:[],ar:[]},TCACHE=new Map();
+const XLANGS=["es","fr","ar"],DICT={},LOWER={},PATTERNS={},TCACHE=new Map();LANGS.forEach(([c])=>{if(c!=="en"){DICT[c]={};LOWER[c]={};PATTERNS[c]=[]}});
 const capFirst=s=>s?s[0].toLocaleUpperCase(LOC())+s.slice(1):s;
 function addZip(L,en,x){if(x==null||en==null)return;
   if(typeof x==="string"){if(typeof en==="string"&&en!==x){DICT[L][en]=x}return}
@@ -5741,7 +5744,7 @@ function watchPanel(){const panel=$("panel"),opts={childList:true,subtree:true,c
   trObs=new MutationObserver(()=>{if(LANG==="en")return;trObs.disconnect();try{trDom(document.getElementById("gameArea"))}finally{trObs.takeRecords();trObs.observe(panel,opts)}});trObs.observe(panel,opts)}
 
 /* Static text, picker and switching */
-function staticTexts(){document.documentElement.lang=LANG;document.documentElement.dir=LANG==="ar"?"rtl":"ltr";
+function staticTexts(){document.documentElement.lang=LANG;document.documentElement.dir=RTL_LANGS.includes(LANG)?"rtl":"ltr";
   [...$("sport").options].forEach(o=>{if(SPORTS[o.value])o.textContent=t(SPORTS[o.value].label)});$("sport").setAttribute("aria-label",t("Choose a branch"));
   document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
   if(typeof themeTexts==="function")themeTexts();if(typeof helperTexts==="function")helperTexts();const ls=$("lang");ls.value=LANG;ls.setAttribute("aria-label",t("Language"));$("langCode").textContent=LANGS.find(l=>l[0]===LANG)[2]}
@@ -5752,18 +5755,22 @@ function staticTexts(){document.documentElement.lang=LANG;document.documentEleme
 const PACK_OK={},PACK_WAIT={};
 function LANGPACK(L,p){const D=DICT[L],Lo=LOWER[L];Object.assign(D,p.d);
   Object.keys(p.d).forEach(en=>{const k=en.toLowerCase();if(!Lo[k])Lo[k]=[en,D[en]]});(p.o||[]).forEach(([k,en,x])=>Lo[k]=[en,x]);
+  /* newer language packs bring their own sentence templates, matched to I18N_PATS by position */
+  if(p.p){PATTERNS[L]=p.p.filter(([i])=>I18N_PATS[i]).map(([i,tpl])=>[I18N_PATS[i][0],packTpl(i,tpl)]);PATTERNS[L].push([/^.+$/,m=>trDate(m[0])])}
   PACK_OK[L]=true;TCACHE.clear()}
+/* "*" reuses the language-neutral helper of that pattern; #n turns "two"/"a" into a number, %n turns "24 November" into a local date */
+function packTpl(i,tpl){if(tpl==="*")return I18N_PATS[i][2];if(/[#%]\d/.test(tpl))return m=>fillTpl(tpl.replace(/#(\d)/g,(_,k)=>String(NUMW(m[+k]))).replace(/%(\d)/g,(_,k)=>liveDay(m[+k])),m);return tpl}
 function loadPack(L){if(L==="en"||PACK_OK[L])return Promise.resolve(true);if(PACK_WAIT[L])return PACK_WAIT[L];
   PACK_WAIT[L]=new Promise(res=>{const s=document.createElement("script");s.src=`lang-${L}.js`;s.async=true;s.onload=()=>res(!!PACK_OK[L]);s.onerror=()=>{delete PACK_WAIT[L];res(false)};document.head.appendChild(s)});return PACK_WAIT[L]}
 function buildI18n(){
   ["tr","de"].forEach((L,li)=>{PATTERNS[L]=I18N_PATS.map(p=>[p[0],p[1+li]]).filter(p=>p[1]!=null);PATTERNS[L].push([/^.+$/,m=>trDate(m[0])])});
   XLANGS.forEach((L,li)=>{PATTERNS[L]=I18N_PATS.map((p,i)=>{const x=I18N_PATS_X[i];return [p[0],x?x[li]:p[2]]}).filter(p=>p[1]!=null);PATTERNS[L].push([/^.+$/,m=>trDate(m[0])])})}
 function applyLang(){staticTexts();render();renderOnThisDay();if(typeof kanRender==="function")kanRender()}
-function setLang(c){if(c==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);if(!LANGS.some(l=>l[0]===c))return;const prev=LANG;
+function setLang(c){if(window.loadFont&&FONT_EXTRA[c])loadFont(FONT_EXTRA[c]);if(!LANGS.some(l=>l[0]===c))return;const prev=LANG;
   if(c==="en"||PACK_OK[c]){LANG=c;try{localStorage.setItem("fb-lang",c)}catch(e){}applyLang();return}
   document.documentElement.classList.add("lwait");
   loadPack(c).then(ok=>{document.documentElement.classList.remove("lwait");if(!ok){$("lang").value=prev;return}LANG=c;try{localStorage.setItem("fb-lang",c)}catch(e){}applyLang()})}
-function initLang(){if(LANG==="ar"&&window.loadFont)loadFont(FONT_EXTRA.ar);buildI18n();$("lang").innerHTML=LANGS.map(([c,n])=>`<option value="${c}">${n}</option>`).join("");$("lang").addEventListener("change",e=>setLang(e.target.value));
+function initLang(){if(window.loadFont&&FONT_EXTRA[LANG])loadFont(FONT_EXTRA[LANG]);buildI18n();$("lang").innerHTML=LANGS.map(([c,n])=>`<option value="${c}">${n}</option>`).join("");$("lang").addEventListener("change",e=>setLang(e.target.value));
   const want=LANG;if(want!=="en"&&!PACK_OK[want]){LANG="en";document.documentElement.classList.add("lwait");const done=()=>document.documentElement.classList.remove("lwait");
     const tm=setTimeout(done,2500);loadPack(want).then(ok=>{clearTimeout(tm);done();if(ok){LANG=want;applyLang()}})}
   staticTexts();watchPanel()}
